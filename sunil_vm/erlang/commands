@@ -1,0 +1,16 @@
+erl -sname bar -setcookie erlang
+net_adm:ping('foo@sunil-Inspiron-5520').
+rpc:call('foo@sunil-Inspiron-5520',erlang,date,[]). 
+
+Commands for client server program:
+c(message_router).  
+c(chat_client).  
+chat_client:start_router().
+
+chat_client:register_nickname('Sunil').
+chat_client:register_nickname('Dhaval').
+net_adm:ping('bar@sunil-Inspiron-5520').
+global:registered_names().
+
+chat_client:send_message('Sunil', "Project").
+chat_client:send_message('Dhaval','Fuck!!Really').
