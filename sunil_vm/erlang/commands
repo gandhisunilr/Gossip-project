@@ -2,6 +2,11 @@ erl -sname bar -setcookie erlang
 net_adm:ping('foo@sunil-Inspiron-5520').
 rpc:call('foo@sunil-Inspiron-5520',erlang,date,[]). 
 
+Using debugger:
+Compile using c(prog,[debug_info]).
+debugger:start().
+set break point and attach process.
+
 Commands for client server program:
 c(message_router).  
 c(chat_client).  
