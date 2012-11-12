@@ -2,14 +2,9 @@
 -compile(export_all).
 -import(matrix).
 
-something()->
-	Pids = create(5,[]),
-	Pids.
-
-create(0,Pids) -> Pids;
-create(I,Pids)->
-	Pid = spawn_link(fun() -> threadnodes(print,I) end),
-	create(I-1,  (Pids ++ [Pid]) ).
-
-threadnodes(Action,TransitionMatrix) ->
-	io:format("~p~n", [TransitionMatrix]).
+something(Function,Myvalue, Value)->
+    case Function of 
+        max -> erlang:max(Myvalue,Value);
+        min -> erlang:min(Myvalue,Value);
+        mean -> (Myvalue + Value)/2
+    end.
