@@ -1,8 +1,15 @@
 -module(something).
--export([something/0]).
+-compile(export_all).
 -import(matrix).
 
 something()->
-	matrix:new(3,3,fun (Column, Row, Columns, _) ->                      
-	Columns * (Row - 1) + Column
-	end).
+	Pids = create(5,[]),
+	Pids.
+
+create(0,Pids) -> Pids;
+create(I,Pids)->
+	Pid = spawn_link(fun() -> threadnodes(print,I) end),
+	create(I-1,  (Pids ++ [Pid]) ).
+
+threadnodes(Action,TransitionMatrix) ->
+	io:format("~p~n", [TransitionMatrix]).
