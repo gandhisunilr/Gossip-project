@@ -1,5 +1,7 @@
 Internet access in virtual machines. And trying out code on that.
-Start actual implementation
+Trying out erlang				Sunil done primal siddharth dhaval
+Start actual implementation		Sunil done
+Creation of framework			Sunil ongoing
 
 Things we can do at end: 
 Change each factor (eg. Alpha) and show results (We can use D3.js for graphs if we have time and anybody is interested in learning it)
