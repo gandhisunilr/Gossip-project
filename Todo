@@ -1,0 +1,7 @@
+Internet access in virtual machines. And trying out code on that.
+Start actual implementation
+
+Things we can do at end: 
+Change each factor (eg. Alpha) and show results (We can use D3.js for graphs if we have time and anybody is interested in learning it)
+Display results and show what happens when communication is assymmetric (sensor networks)
+Use this for computing something over social network graphs
