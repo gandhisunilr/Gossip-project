@@ -19,3 +19,26 @@ global:registered_names().
 
 chat_client:send_message('Sunil', "Project").
 chat_client:send_message('Dhaval','Fuck!!Really').
+
+-----------------------------------------------------------------------------------------------
+Using matrix program
+
+Matrix is basically lists of list and we are using that matrix library to ease operations on matrix if we need in future (get neighbours we might need)
+
+matrix:new(3).                                                        
+[[0,0,0],[0,0,0],[0,0,0]]
+
+X=matrix:new(3,3,fun (Column, Row, Columns, _) ->                      
+	Columns * (Row - 1) + Column
+	end).                                                                    
+[[1,2,3],[4,5,6],[7,8,9]]
+
+On Using lists
+
+lists:nth(2,X).                                                       
+[4,5,6]
+
+lists:nth(1,lists:nth(3,X)).
+7
+
+NEVER EVER EVER FORGET THAT CAPITALS ARE VARIABLES AND small ARE values, OTHERWISE BE READY FOR TROUBLE.
