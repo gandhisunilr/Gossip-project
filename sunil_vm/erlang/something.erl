@@ -3,14 +3,12 @@
 -import(matrix).
 
 something() ->
-	spawn_link(fun() -> myprocess() end),
+	Pid =spawn_link(fun() -> myprocess() end),
+	Pid ! {tick, [1,2,3,4] }.
 
 myprocess()->
     receive
-    	tick ->
+    	{ tick, Pids } ->
     		% write code for doing things periodically
-    		io:format("Got one"),
-			timer:send_after(1000, tick)
-		end,
-	myprocess().
-
+    		io:format("This is list Pids: ~p",[Pids])
+		end.
