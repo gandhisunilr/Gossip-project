@@ -17,6 +17,10 @@ Building the network
     Choose a value(0.25) as neighbourhood threshold and if distance of two nodes inside that make them neighbours
     probability assigned based on the function Dr. K has given
 
+    Concern: How to make sure every node has at least one neighbour
+
+    Concern: Associating each process(pid) with the row in PTM.
+
     
 Gossip
 ======
