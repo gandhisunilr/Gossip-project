@@ -69,13 +69,13 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Size) ->
         %Recieve Function from Process Pid with his value
         {Function, Pid, Value } ->
         	Pid ! { returnmsg, Function, self(), Myvalue },
-        	io:format("Yay I just received ~p and my Value is ~p and I am computing ~p ~n", [Value,Myvalue, Function]),
+        	io:format("~p Received ~p from ~p My Value is ~p Computing ~p ~n", [self(),Value,Pid,Myvalue, Function]),
         	threadnodes(TransitionMatrix,Pids, calculate( Function, Myvalue,Value),Size);
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
-        	io:format("Reply ~p and my Value is ~p and I am computing ~p ~n", [Value,Myvalue, Function]),
-        	threadnodes(TransitionMatrix,Pids, erlang:calculate( Function, Myvalue,Value),Size);
+        	io:format("~p Reply Received ~p from ~p My Value is ~p Computing ~p ~n", [self(),Value,Pid,Myvalue, Function]),    	
+        	threadnodes(TransitionMatrix,Pids, calculate( Function, Myvalue,Value),Size);
 
         {tick, Function}->
         	io:format("tick~p ~n",[self()]),
