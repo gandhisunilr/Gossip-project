@@ -37,18 +37,25 @@ create(I,Pids,TransitionMatrix)->
 	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I)) end),
 	create(I-1,  (Pids ++ [Pid]), TransitionMatrix ).
 
-initthread(I) -> I.
+initthread(I) -> [I].
 
 calculate(Function,Myvalue,Value) ->
 case Function of 
-        max -> erlang:max(Myvalue,Value);
-        min -> erlang:min(Myvalue,Value);
-        mean -> (Myvalue + Value)/2;
+        max -> [erlang:max(hd(Myvalue),hd(Value))];
+        min -> [erlang:min(hd(Myvalue),hd(Value))];
+        mean ->[(hd(Myvalue) + hd(Value))/2];
         update -> true
     end.
 
 selectneighbours(TransitionMatrix, Pids, Pid) ->
 	lists:nth(random:uniform(length(TransitionMatrix)), Pids).
+
+printmsg(Function,Type,Printlist)->
+case Type of
+	return -> io:format("~p : ~p Received from ~p :~p Computing ~p ~n", [hd(Printlist),hd(lists:nth(2,Printlist)),lists:nth(3,Printlist),hd(lists:nth(4,Printlist)), Function]);
+	returnmsg -> io:format("~p : ~p Received from ~p :~p Reply Computing ~p ~n", [hd(Printlist),hd(lists:nth(2,Printlist)),lists:nth(3,Printlist),hd(lists:nth(4,Printlist)), Function])
+end.
+	
 
 threadnodes(TransitionMatrix,Pids,Myvalue) ->
 	%getneighbours()
@@ -68,12 +75,12 @@ threadnodes(TransitionMatrix,Pids,Myvalue) ->
         %Recieve Function from Process Pid with his value
         {Function, Pid, Value } ->
         	Pid ! { returnmsg, Function, self(), Myvalue },
-        	io:format("~p : ~p Received from ~p :~p Computing ~p ~n", [self(),Myvalue,Pid,Value, Function]),
+        	printmsg(Function, return, [self(),Myvalue,Pid,Value]),
         	threadnodes(TransitionMatrix,Pids, calculate( Function, Myvalue,Value));
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
-            io:format("~p : ~p Received from ~p :~p Reply Computing ~p ~n", [self(),Myvalue,Pid,Value, Function]),
+        	printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
         	threadnodes(TransitionMatrix,Pids, calculate( Function, Myvalue,Value));
 
         {tick, Function}->
