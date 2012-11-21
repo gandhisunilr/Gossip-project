@@ -2,22 +2,20 @@
 
 -compile(export_all).
 
-start(Function)->
+start(Function,Input)->
 	%P = generate_topology()
-	P=matrix:new(3,3,fun (Column, Row, Columns, _) ->                      
+	P=matrix:new(10,10,fun (Column, Row, Columns, _) ->                      
 	Columns * (Row - 1) + Column
 	end),
-	gossip(Function,P).
+	gossip(Function,P,Input).
 
-gossip(Function,TransitionMatrix) ->
-	Pids = create(length(TransitionMatrix),[],TransitionMatrix),
+gossip(Function,TransitionMatrix,Input) ->
+	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input),
 	sendpids(length(Pids),Pids),
 	starttimer(Pids,Function).
-	% hd(Pids) ! {max, self(), 100},
-	% receive
-	%  	{returnmsg, Function, Pid, Value } ->
-	%  		Value
-	% end.
+	%we must get list of list which contains tuples of index and floating point no. for each node
+	% [[(index, value)()()],[(index, value)()],..] fraglist= getfragmentlist(N) 
+	% threadnodes <- create <- fraglist
 
 starttimer(Pids,Function) ->
 	hd(Pids) ! {tick, Function},
@@ -32,19 +30,28 @@ sendpids(I,Pids) ->
 	lists:nth(I,Pids) ! {pid, Pids},
 	sendpids(I-1,Pids).
 
-create(0,Pids,TransitionMatrix) -> Pids;
-create(I,Pids,TransitionMatrix)->
-	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I)) end),
-	create(I-1,  (Pids ++ [Pid]), TransitionMatrix ).
+create(0,Pids,TransitionMatrix,Input) -> Pids;
+create(I,Pids,TransitionMatrix,Input)->
+	%getfragments(I)
+	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I,Input)) end),
+	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input).
 
-initthread(I) -> [I].
+initthread(I,Input) -> 
+	case Input of 
+        identity -> [I];
+        pushpull -> if
+        	I == 1 ->
+        		[1];
+        	true -> [0]
+        end
+    end.	
 
 calculate(Function,Myvalue,Value) ->
 case Function of 
         max -> [erlang:max(hd(Myvalue),hd(Value))];
         min -> [erlang:min(hd(Myvalue),hd(Value))];
         mean ->[(hd(Myvalue) + hd(Value))/2];
-        update -> true
+        update -> [1]
     end.
 
 selectneighbours(TransitionMatrix, Pids, Pid) ->
@@ -59,7 +66,6 @@ end.
 
 threadnodes(TransitionMatrix,Pids,Myvalue) ->
 	%getneighbours()
-	%getfragments()
 	receive
 		%get the fucking pids of all processes,
         {pid, Pidsmsg } ->
