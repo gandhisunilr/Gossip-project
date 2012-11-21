@@ -34,14 +34,17 @@ sendpids(I,Pids) ->
 
 create(0,Pids,TransitionMatrix) -> Pids;
 create(I,Pids,TransitionMatrix)->
-	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],I) end),
+	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I)) end),
 	create(I-1,  (Pids ++ [Pid]), TransitionMatrix ).
+
+initthread(I) -> I.
 
 calculate(Function,Myvalue,Value) ->
 case Function of 
         max -> erlang:max(Myvalue,Value);
         min -> erlang:min(Myvalue,Value);
-        mean -> (Myvalue + Value)/2
+        mean -> (Myvalue + Value)/2;
+        update -> true
     end.
 
 selectneighbours(TransitionMatrix, Pids, Pid) ->
