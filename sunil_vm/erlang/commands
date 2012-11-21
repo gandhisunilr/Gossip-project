@@ -46,3 +46,6 @@ EVERYTHING THAT IS TO BE USED IN A FUNCTION NEEDS TO BE SENT FROM OUTSIDE.
 
 Run Gossip: 
 gossip:start(max).
+
+Store output in output.txt
+erl | tee output.txt  
