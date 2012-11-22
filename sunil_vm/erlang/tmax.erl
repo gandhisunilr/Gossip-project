@@ -1,4 +1,5 @@
-
+%Finds the maximum of the list based on the second element of the list. 
+%lt_max([{2, 2}, {3, 3}, {1, 4}] => 4
 -module(tmax).
 -compile(export_all).
 
