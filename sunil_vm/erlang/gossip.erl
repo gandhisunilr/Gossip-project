@@ -1,5 +1,5 @@
 -module(gossip).
-
+-import(matrix).
 -compile(export_all).
 
 start(Function,Input)->
