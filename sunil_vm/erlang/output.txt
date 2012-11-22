@@ -1,0 +1,398 @@
+Eshell V5.8.5  (abort with ^G)
+1> ./gossip.erl:30: Warning: variable 'Pids' is unused
+./gossip.erl:35: Warning: variable 'Input' is unused
+./gossip.erl:35: Warning: variable 'TransitionMatrix' is unused
+./gossip.erl:59: Warning: variable 'Pid' is unused
+{ok,gossip}
+2> Yay I Got Pids<0.38.0> 
+Yay I Got Pids<0.39.0> 
+Yay I Got Pids<0.40.0> 
+Yay I Got Pids<0.41.0> 
+Yay I Got Pids<0.42.0> 
+Yay I Got Pids<0.43.0> 
+Yay I Got Pids<0.44.0> 
+Yay I Got Pids<0.45.0> 
+Yay I Got Pids<0.46.0> 
+Yay I Got Pids<0.47.0> 
+true
+3> <0.38.0> : 0 Received from <0.47.0> :1 Computing mean 
+3> <0.47.0> : 1 Received from <0.38.0> :0 Reply Computing mean 
+3> <0.38.0> : 0.5 Received from <0.46.0> :0 Computing mean 
+3> <0.46.0> : 0 Received from <0.38.0> :0.5 Reply Computing mean 
+3> <0.38.0> : 0.25 Received from <0.45.0> :0 Computing mean 
+3> <0.45.0> : 0 Received from <0.38.0> :0.25 Reply Computing mean 
+3> <0.38.0> : 0.125 Received from <0.44.0> :0 Computing mean 
+3> <0.44.0> : 0 Received from <0.38.0> :0.125 Reply Computing mean 
+3> <0.38.0> : 0.0625 Received from <0.43.0> :0 Computing mean 
+3> <0.43.0> : 0 Received from <0.38.0> :0.0625 Reply Computing mean 
+3> <0.38.0> : 0.03125 Received from <0.42.0> :0 Computing mean 
+3> <0.42.0> : 0 Received from <0.38.0> :0.03125 Reply Computing mean 
+3> <0.38.0> : 0.015625 Received from <0.41.0> :0 Computing mean 
+3> <0.41.0> : 0 Received from <0.38.0> :0.015625 Reply Computing mean 
+3> <0.38.0> : 0.0078125 Received from <0.38.0> :0 Computing mean 
+3> <0.38.0> : 0.00390625 Received from <0.40.0> :0 Computing mean 
+3> <0.40.0> : 0 Received from <0.38.0> :0.00390625 Reply Computing mean 
+3> <0.38.0> : 0.001953125 Received from <0.39.0> :0 Computing mean 
+3> <0.39.0> : 0 Received from <0.38.0> :0.001953125 Reply Computing mean 
+3> <0.38.0> : 9.765625e-4 Received from <0.38.0> :0.0078125 Reply Computing mean 
+3> <0.42.0> : 0.015625 Received from <0.41.0> :0.0078125 Computing mean 
+3> <0.41.0> : 0.0078125 Received from <0.42.0> :0.015625 Reply Computing mean 
+3> <0.42.0> : 0.01171875 Received from <0.42.0> :0.015625 Computing mean 
+3> <0.42.0> : 0.013671875 Received from <0.43.0> :0.03125 Computing mean 
+3> <0.43.0> : 0.03125 Received from <0.42.0> :0.013671875 Reply Computing mean 
+3> <0.42.0> : 0.0224609375 Received from <0.44.0> :0.0625 Computing mean 
+3> <0.44.0> : 0.0625 Received from <0.42.0> :0.0224609375 Reply Computing mean 
+3> <0.42.0> : 0.04248046875 Received from <0.47.0> :0.5 Computing mean 
+3> <0.47.0> : 0.5 Received from <0.42.0> :0.04248046875 Reply Computing mean 
+3> <0.42.0> : 0.271240234375 Received from <0.38.0> :0.00439453125 Computing mean 
+3> <0.38.0> : 0.00439453125 Received from <0.42.0> :0.271240234375 Reply Computing mean 
+3> <0.42.0> : 0.1378173828125 Received from <0.39.0> :9.765625e-4 Computing mean 
+3> <0.39.0> : 9.765625e-4 Received from <0.42.0> :0.1378173828125 Reply Computing mean 
+3> <0.42.0> : 0.06939697265625 Received from <0.40.0> :0.001953125 Computing mean 
+3> <0.40.0> : 0.001953125 Received from <0.42.0> :0.06939697265625 Reply Computing mean 
+3> <0.42.0> : 0.035675048828125 Received from <0.46.0> :0.25 Computing mean 
+3> <0.46.0> : 0.25 Received from <0.42.0> :0.035675048828125 Reply Computing mean 
+3> <0.42.0> : 0.1428375244140625 Received from <0.45.0> :0.125 Computing mean 
+3> <0.45.0> : 0.125 Received from <0.42.0> :0.1428375244140625 Reply Computing mean 
+3> <0.42.0> : 0.13391876220703125 Received from <0.42.0> :0.01171875 Reply Computing mean 
+3> <0.45.0> : 0.13391876220703125 Received from <0.41.0> :0.01171875 Computing mean 
+3> <0.41.0> : 0.01171875 Received from <0.45.0> :0.13391876220703125 Reply Computing mean 
+3> <0.45.0> : 0.07281875610351563 Received from <0.47.0> :0.271240234375 Computing mean 
+3> <0.47.0> : 0.271240234375 Received from <0.45.0> :0.07281875610351563 Reply Computing mean 
+3> <0.45.0> : 0.1720294952392578 Received from <0.38.0> :0.1378173828125 Computing mean 
+3> <0.38.0> : 0.1378173828125 Received from <0.45.0> :0.1720294952392578 Reply Computing mean 
+3> <0.45.0> : 0.1549234390258789 Received from <0.39.0> :0.06939697265625 Computing mean 
+3> <0.39.0> : 0.06939697265625 Received from <0.45.0> :0.1549234390258789 Reply Computing mean 
+3> <0.45.0> : 0.11216020584106445 Received from <0.44.0> :0.04248046875 Computing mean 
+3> <0.44.0> : 0.04248046875 Received from <0.45.0> :0.11216020584106445 Reply Computing mean 
+3> <0.45.0> : 0.07732033729553223 Received from <0.40.0> :0.035675048828125 Computing mean 
+3> <0.40.0> : 0.035675048828125 Received from <0.45.0> :0.07732033729553223 Reply Computing mean 
+3> <0.45.0> : 0.05649769306182861 Received from <0.43.0> :0.0224609375 Computing mean 
+3> <0.43.0> : 0.0224609375 Received from <0.45.0> :0.05649769306182861 Reply Computing mean 
+3> <0.45.0> : 0.03947931528091431 Received from <0.45.0> :0.13391876220703125 Computing mean 
+3> <0.45.0> : 0.08669903874397278 Received from <0.46.0> :0.1428375244140625 Computing mean 
+3> <0.46.0> : 0.1428375244140625 Received from <0.45.0> :0.08669903874397278 Reply Computing mean 
+3> <0.45.0> : 0.11476828157901764 Received from <0.42.0> :0.07281875610351563 Computing mean 
+3> <0.42.0> : 0.07281875610351563 Received from <0.45.0> :0.11476828157901764 Reply Computing mean 
+3> <0.45.0> : 0.09379351884126663 Received from <0.45.0> :0.03947931528091431 Reply Computing mean 
+3> <0.47.0> : 0.1720294952392578 Received from <0.41.0> :0.07281875610351563 Computing mean 
+3> <0.41.0> : 0.07281875610351563 Received from <0.47.0> :0.1720294952392578 Reply Computing mean 
+3> <0.47.0> : 0.12242412567138672 Received from <0.47.0> :0.1720294952392578 Computing mean 
+3> <0.47.0> : 0.14722681045532227 Received from <0.45.0> :0.06663641706109047 Computing mean 
+3> <0.45.0> : 0.06663641706109047 Received from <0.47.0> :0.14722681045532227 Reply Computing mean 
+3> <0.47.0> : 0.10693161375820637 Received from <0.42.0> :0.09379351884126663 Computing mean 
+3> <0.42.0> : 0.09379351884126663 Received from <0.47.0> :0.10693161375820637 Reply Computing mean 
+3> <0.47.0> : 0.1003625662997365 Received from <0.38.0> :0.1549234390258789 Computing mean 
+3> <0.38.0> : 0.1549234390258789 Received from <0.47.0> :0.1003625662997365 Reply Computing mean 
+3> <0.47.0> : 0.1276430026628077 Received from <0.43.0> :0.03947931528091431 Computing mean 
+3> <0.43.0> : 0.03947931528091431 Received from <0.47.0> :0.1276430026628077 Reply Computing mean 
+3> <0.47.0> : 0.083561158971861 Received from <0.39.0> :0.11216020584106445 Computing mean 
+3> <0.39.0> : 0.11216020584106445 Received from <0.47.0> :0.083561158971861 Reply Computing mean 
+3> <0.47.0> : 0.09786068240646273 Received from <0.44.0> :0.07732033729553223 Computing mean 
+3> <0.44.0> : 0.07732033729553223 Received from <0.47.0> :0.09786068240646273 Reply Computing mean 
+3> <0.47.0> : 0.08759050985099748 Received from <0.40.0> :0.05649769306182861 Computing mean 
+3> <0.40.0> : 0.05649769306182861 Received from <0.47.0> :0.08759050985099748 Reply Computing mean 
+3> <0.47.0> : 0.07204410145641305 Received from <0.46.0> :0.11476828157901764 Computing mean 
+3> <0.46.0> : 0.11476828157901764 Received from <0.47.0> :0.07204410145641305 Reply Computing mean 
+3> <0.47.0> : 0.09340619151771534 Received from <0.47.0> :0.12242412567138672 Reply Computing mean 
+3> <0.43.0> : 0.083561158971861 Received from <0.41.0> :0.12242412567138672 Computing mean 
+3> <0.41.0> : 0.12242412567138672 Received from <0.43.0> :0.083561158971861 Reply Computing mean 
+3> <0.43.0> : 0.10299264232162386 Received from <0.47.0> :0.10791515859455103 Computing mean 
+3> <0.43.0> : 0.10545390045808745 Received from <0.45.0> :0.10693161375820637 Computing mean 
+3> <0.45.0> : 0.10693161375820637 Received from <0.43.0> :0.10545390045808745 Reply Computing mean 
+3> <0.43.0> : 0.1061927571081469 Received from <0.42.0> :0.1003625662997365 Computing mean 
+3> <0.47.0> : 0.10791515859455103 Received from <0.43.0> :0.10299264232162386 Reply Computing mean 
+3> <0.42.0> : 0.1003625662997365 Received from <0.43.0> :0.1061927571081469 Reply Computing mean 
+3> <0.43.0> : 0.1032776617039417 Received from <0.38.0> :0.1276430026628077 Computing mean 
+3> <0.38.0> : 0.1276430026628077 Received from <0.43.0> :0.1032776617039417 Reply Computing mean 
+3> <0.43.0> : 0.1154603321833747 Received from <0.43.0> :0.083561158971861 Computing mean 
+3> <0.43.0> : 0.09951074557761785 Received from <0.39.0> :0.09786068240646273 Computing mean 
+3> <0.39.0> : 0.09786068240646273 Received from <0.43.0> :0.09951074557761785 Reply Computing mean 
+3> <0.43.0> : 0.09868571399204029 Received from <0.44.0> :0.08759050985099748 Computing mean 
+3> <0.44.0> : 0.08759050985099748 Received from <0.43.0> :0.09868571399204029 Reply Computing mean 
+3> <0.43.0> : 0.09313811192151888 Received from <0.40.0> :0.07204410145641305 Computing mean 
+3> <0.40.0> : 0.07204410145641305 Received from <0.43.0> :0.09313811192151888 Reply Computing mean 
+3> <0.43.0> : 0.08259110668896597 Received from <0.46.0> :0.09340619151771534 Computing mean 
+3> <0.46.0> : 0.09340619151771534 Received from <0.43.0> :0.08259110668896597 Reply Computing mean 
+3> <0.43.0> : 0.08799864910334065 Received from <0.43.0> :0.1154603321833747 Reply Computing mean 
+3> <0.41.0> : 0.10299264232162386 Received from <0.41.0> :0.10299264232162386 Computing mean 
+3> <0.41.0> : 0.10299264232162386 Received from <0.41.0> :0.10299264232162386 Reply Computing mean 
+3> <0.41.0> : 0.10299264232162386 Received from <0.47.0> :0.10545390045808745 Computing mean 
+3> <0.47.0> : 0.10545390045808745 Received from <0.41.0> :0.10299264232162386 Reply Computing mean 
+3> <0.41.0> : 0.10422327138985565 Received from <0.43.0> :0.10172949064335768 Computing mean 
+3> <0.43.0> : 0.10172949064335768 Received from <0.41.0> :0.10422327138985565 Reply Computing mean 
+3> <0.41.0> : 0.10297638101660667 Received from <0.46.0> :0.08799864910334065 Computing mean 
+3> <0.46.0> : 0.08799864910334065 Received from <0.41.0> :0.10297638101660667 Reply Computing mean 
+3> <0.41.0> : 0.09548751505997366 Received from <0.40.0> :0.08259110668896597 Computing mean 
+3> <0.40.0> : 0.08259110668896597 Received from <0.41.0> :0.09548751505997366 Reply Computing mean 
+3> <0.41.0> : 0.08903931087446981 Received from <0.44.0> :0.09313811192151888 Computing mean 
+3> <0.44.0> : 0.09313811192151888 Received from <0.41.0> :0.08903931087446981 Reply Computing mean 
+3> <0.41.0> : 0.09108871139799435 Received from <0.39.0> :0.09868571399204029 Computing mean 
+3> <0.39.0> : 0.09868571399204029 Received from <0.41.0> :0.09108871139799435 Reply Computing mean 
+3> <0.41.0> : 0.09488721269501732 Received from <0.38.0> :0.1154603321833747 Computing mean 
+3> <0.38.0> : 0.1154603321833747 Received from <0.41.0> :0.09488721269501732 Reply Computing mean 
+3> <0.41.0> : 0.10517377243919601 Received from <0.42.0> :0.1032776617039417 Computing mean 
+3> <0.42.0> : 0.1032776617039417 Received from <0.41.0> :0.10517377243919601 Reply Computing mean 
+3> <0.41.0> : 0.10422571707156886 Received from <0.45.0> :0.1061927571081469 Computing mean 
+3> <0.45.0> : 0.1061927571081469 Received from <0.41.0> :0.10422571707156886 Reply Computing mean 
+3> <0.43.0> : 0.10297638101660667 Received from <0.41.0> :0.10520923708985788 Computing mean 
+3> <0.41.0> : 0.10520923708985788 Received from <0.43.0> :0.10297638101660667 Reply Computing mean 
+3> <0.43.0> : 0.10409280905323227 Received from <0.47.0> :0.10422327138985565 Computing mean 
+3> <0.47.0> : 0.10422327138985565 Received from <0.43.0> :0.10409280905323227 Reply Computing mean 
+3> <0.43.0> : 0.10415804022154396 Received from <0.43.0> :0.10297638101660667 Computing mean 
+3> <0.43.0> : 0.10356721061907531 Received from <0.45.0> :0.10520923708985788 Computing mean 
+3> <0.45.0> : 0.10520923708985788 Received from <0.43.0> :0.10356721061907531 Reply Computing mean 
+3> <0.43.0> : 0.1043882238544666 Received from <0.42.0> :0.10422571707156886 Computing mean 
+3> <0.42.0> : 0.10422571707156886 Received from <0.43.0> :0.1043882238544666 Reply Computing mean 
+3> <0.43.0> : 0.10430697046301773 Received from <0.38.0> :0.10517377243919601 Computing mean 
+3> <0.38.0> : 0.10517377243919601 Received from <0.43.0> :0.10430697046301773 Reply Computing mean 
+3> <0.43.0> : 0.10474037145110687 Received from <0.39.0> :0.09488721269501732 Computing mean 
+3> <0.39.0> : 0.09488721269501732 Received from <0.43.0> :0.10474037145110687 Reply Computing mean 
+3> <0.43.0> : 0.0998137920730621 Received from <0.44.0> :0.09108871139799435 Computing mean 
+3> <0.44.0> : 0.09108871139799435 Received from <0.43.0> :0.0998137920730621 Reply Computing mean 
+3> <0.43.0> : 0.09545125173552822 Received from <0.40.0> :0.08903931087446981 Computing mean 
+3> <0.40.0> : 0.08903931087446981 Received from <0.43.0> :0.09545125173552822 Reply Computing mean 
+3> <0.43.0> : 0.09224528130499901 Received from <0.46.0> :0.09548751505997366 Computing mean 
+3> <0.46.0> : 0.09548751505997366 Received from <0.43.0> :0.09224528130499901 Reply Computing mean 
+3> <0.43.0> : 0.09386639818248634 Received from <0.43.0> :0.10415804022154396 Reply Computing mean 
+3> <0.47.0> : 0.10415804022154396 Received from <0.41.0> :0.10409280905323227 Computing mean 
+3> <0.41.0> : 0.10409280905323227 Received from <0.47.0> :0.10415804022154396 Reply Computing mean 
+3> <0.47.0> : 0.10412542463738811 Received from <0.47.0> :0.10415804022154396 Computing mean 
+3> <0.47.0> : 0.10414173242946603 Received from <0.43.0> :0.09901221920201514 Computing mean 
+3> <0.43.0> : 0.09901221920201514 Received from <0.47.0> :0.10414173242946603 Reply Computing mean 
+3> <0.47.0> : 0.10157697581574059 Received from <0.45.0> :0.1043882238544666 Computing mean 
+3> <0.45.0> : 0.1043882238544666 Received from <0.47.0> :0.10157697581574059 Reply Computing mean 
+3> <0.47.0> : 0.10298259983510359 Received from <0.42.0> :0.10430697046301773 Computing mean 
+3> <0.42.0> : 0.10430697046301773 Received from <0.47.0> :0.10298259983510359 Reply Computing mean 
+3> <0.47.0> : 0.10364478514906067 Received from <0.38.0> :0.10474037145110687 Computing mean 
+3> <0.38.0> : 0.10474037145110687 Received from <0.47.0> :0.10364478514906067 Reply Computing mean 
+3> <0.47.0> : 0.10419257830008377 Received from <0.39.0> :0.0998137920730621 Computing mean 
+3> <0.39.0> : 0.0998137920730621 Received from <0.47.0> :0.10419257830008377 Reply Computing mean 
+3> <0.47.0> : 0.10200318518657293 Received from <0.44.0> :0.09545125173552822 Computing mean 
+3> <0.44.0> : 0.09545125173552822 Received from <0.47.0> :0.10200318518657293 Reply Computing mean 
+3> <0.47.0> : 0.09872721846105058 Received from <0.40.0> :0.09224528130499901 Computing mean 
+3> <0.40.0> : 0.09224528130499901 Received from <0.47.0> :0.09872721846105058 Reply Computing mean 
+3> <0.47.0> : 0.09548624988302479 Received from <0.46.0> :0.09386639818248634 Computing mean 
+3> <0.46.0> : 0.09386639818248634 Received from <0.47.0> :0.09548624988302479 Reply Computing mean 
+3> <0.47.0> : 0.09467632403275555 Received from <0.47.0> :0.10412542463738811 Reply Computing mean 
+3> <0.44.0> : 0.09872721846105058 Received from <0.41.0> :0.10412542463738811 Computing mean 
+3> <0.41.0> : 0.10412542463738811 Received from <0.44.0> :0.09872721846105058 Reply Computing mean 
+3> <0.44.0> : 0.10142632154921935 Received from <0.47.0> :0.09940087433507183 Computing mean 
+3> <0.47.0> : 0.09940087433507183 Received from <0.44.0> :0.10142632154921935 Reply Computing mean 
+3> <0.44.0> : 0.10041359794214559 Received from <0.43.0> :0.10157697581574059 Computing mean 
+3> <0.43.0> : 0.10157697581574059 Received from <0.44.0> :0.10041359794214559 Reply Computing mean 
+3> <0.44.0> : 0.10099528687894309 Received from <0.45.0> :0.10298259983510359 Computing mean 
+3> <0.45.0> : 0.10298259983510359 Received from <0.44.0> :0.10099528687894309 Reply Computing mean 
+3> <0.44.0> : 0.10198894335702334 Received from <0.42.0> :0.10364478514906067 Computing mean 
+3> <0.42.0> : 0.10364478514906067 Received from <0.44.0> :0.10198894335702334 Reply Computing mean 
+3> <0.44.0> : 0.10281686425304201 Received from <0.38.0> :0.10419257830008377 Computing mean 
+3> <0.38.0> : 0.10419257830008377 Received from <0.44.0> :0.10281686425304201 Reply Computing mean 
+3> <0.44.0> : 0.10350472127656289 Received from <0.39.0> :0.10200318518657293 Computing mean 
+3> <0.39.0> : 0.10200318518657293 Received from <0.44.0> :0.10350472127656289 Reply Computing mean 
+3> <0.44.0> : 0.10275395323156791 Received from <0.44.0> :0.09872721846105058 Computing mean 
+3> <0.44.0> : 0.10074058584630924 Received from <0.40.0> :0.09548624988302479 Computing mean 
+3> <0.40.0> : 0.09548624988302479 Received from <0.44.0> :0.10074058584630924 Reply Computing mean 
+3> <0.44.0> : 0.09811341786466701 Received from <0.46.0> :0.09467632403275555 Computing mean 
+3> <0.46.0> : 0.09467632403275555 Received from <0.44.0> :0.09811341786466701 Reply Computing mean 
+3> <0.44.0> : 0.09639487094871128 Received from <0.44.0> :0.10275395323156791 Reply Computing mean 
+3> <0.42.0> : 0.10281686425304201 Received from <0.41.0> :0.10142632154921935 Computing mean 
+3> <0.41.0> : 0.10142632154921935 Received from <0.42.0> :0.10281686425304201 Reply Computing mean 
+3> <0.42.0> : 0.10212159290113068 Received from <0.47.0> :0.10041359794214559 Computing mean 
+3> <0.47.0> : 0.10041359794214559 Received from <0.42.0> :0.10212159290113068 Reply Computing mean 
+3> <0.42.0> : 0.10126759542163813 Received from <0.43.0> :0.10099528687894309 Computing mean 
+3> <0.43.0> : 0.10099528687894309 Received from <0.42.0> :0.10126759542163813 Reply Computing mean 
+3> <0.42.0> : 0.1011314411502906 Received from <0.45.0> :0.10198894335702334 Computing mean 
+3> <0.45.0> : 0.10198894335702334 Received from <0.42.0> :0.1011314411502906 Reply Computing mean 
+3> <0.42.0> : 0.10156019225365698 Received from <0.42.0> :0.10281686425304201 Computing mean 
+3> <0.42.0> : 0.1021885282533495 Received from <0.38.0> :0.10350472127656289 Computing mean 
+3> <0.38.0> : 0.10350472127656289 Received from <0.42.0> :0.1021885282533495 Reply Computing mean 
+3> <0.42.0> : 0.1028466247649562 Received from <0.39.0> :0.10275395323156791 Computing mean 
+3> <0.39.0> : 0.10275395323156791 Received from <0.42.0> :0.1028466247649562 Reply Computing mean 
+3> <0.42.0> : 0.10280028899826205 Received from <0.44.0> :0.09957441209013959 Computing mean 
+3> <0.44.0> : 0.09957441209013959 Received from <0.42.0> :0.10280028899826205 Reply Computing mean 
+3> <0.42.0> : 0.10118735054420082 Received from <0.40.0> :0.09811341786466701 Computing mean 
+3> <0.40.0> : 0.09811341786466701 Received from <0.42.0> :0.10118735054420082 Reply Computing mean 
+3> <0.42.0> : 0.09965038420443392 Received from <0.46.0> :0.09639487094871128 Computing mean 
+3> <0.46.0> : 0.09639487094871128 Received from <0.42.0> :0.09965038420443392 Reply Computing mean 
+3> <0.42.0> : 0.0980226275765726 Received from <0.42.0> :0.10156019225365698 Reply Computing mean 
+3> <0.43.0> : 0.1011314411502906 Received from <0.41.0> :0.10212159290113068 Computing mean 
+3> <0.41.0> : 0.10212159290113068 Received from <0.43.0> :0.1011314411502906 Reply Computing mean 
+3> <0.43.0> : 0.10162651702571064 Received from <0.47.0> :0.10126759542163813 Computing mean 
+3> <0.47.0> : 0.10126759542163813 Received from <0.43.0> :0.10162651702571064 Reply Computing mean 
+3> <0.43.0> : 0.10144705622367439 Received from <0.43.0> :0.1011314411502906 Computing mean 
+3> <0.43.0> : 0.1012892486869825 Received from <0.45.0> :0.10156019225365698 Computing mean 
+3> <0.45.0> : 0.10156019225365698 Received from <0.43.0> :0.1012892486869825 Reply Computing mean 
+3> <0.43.0> : 0.10142472047031974 Received from <0.42.0> :0.09979140991511479 Computing mean 
+3> <0.42.0> : 0.09979140991511479 Received from <0.43.0> :0.10142472047031974 Reply Computing mean 
+3> <0.43.0> : 0.10060806519271726 Received from <0.38.0> :0.1028466247649562 Computing mean 
+3> <0.38.0> : 0.1028466247649562 Received from <0.43.0> :0.10060806519271726 Reply Computing mean 
+3> <0.43.0> : 0.10172734497883673 Received from <0.39.0> :0.10280028899826205 Computing mean 
+3> <0.39.0> : 0.10280028899826205 Received from <0.43.0> :0.10172734497883673 Reply Computing mean 
+3> <0.43.0> : 0.10226381698854939 Received from <0.44.0> :0.10118735054420082 Computing mean 
+3> <0.44.0> : 0.10118735054420082 Received from <0.43.0> :0.10226381698854939 Reply Computing mean 
+3> <0.43.0> : 0.10172558376637511 Received from <0.40.0> :0.09965038420443392 Computing mean 
+3> <0.40.0> : 0.09965038420443392 Received from <0.43.0> :0.10172558376637511 Reply Computing mean 
+3> <0.43.0> : 0.10068798398540452 Received from <0.46.0> :0.0980226275765726 Computing mean 
+3> <0.46.0> : 0.0980226275765726 Received from <0.43.0> :0.10068798398540452 Reply Computing mean 
+3> <0.43.0> : 0.09935530578098856 Received from <0.43.0> :0.10144705622367439 Reply Computing mean 
+3> <0.39.0> : 0.10226381698854939 Received from <0.41.0> :0.10162651702571064 Computing mean 
+3> <0.41.0> : 0.10162651702571064 Received from <0.39.0> :0.10226381698854939 Reply Computing mean 
+3> <0.39.0> : 0.10194516700713002 Received from <0.47.0> :0.10144705622367439 Computing mean 
+3> <0.47.0> : 0.10144705622367439 Received from <0.39.0> :0.10194516700713002 Reply Computing mean 
+3> <0.39.0> : 0.10169611161540221 Received from <0.43.0> :0.10040118100233147 Computing mean 
+3> <0.43.0> : 0.10040118100233147 Received from <0.39.0> :0.10169611161540221 Reply Computing mean 
+3> <0.39.0> : 0.10104864630886684 Received from <0.45.0> :0.10142472047031974 Computing mean 
+3> <0.45.0> : 0.10142472047031974 Received from <0.39.0> :0.10104864630886684 Reply Computing mean 
+3> <0.39.0> : 0.1012366833895933 Received from <0.42.0> :0.10060806519271726 Computing mean 
+3> <0.42.0> : 0.10060806519271726 Received from <0.39.0> :0.1012366833895933 Reply Computing mean 
+3> <0.39.0> : 0.10092237429115528 Received from <0.38.0> :0.10172734497883673 Computing mean 
+3> <0.38.0> : 0.10172734497883673 Received from <0.39.0> :0.10092237429115528 Reply Computing mean 
+3> <0.39.0> : 0.101324859634996 Received from <0.39.0> :0.10226381698854939 Computing mean 
+3> <0.39.0> : 0.1017943383117727 Received from <0.44.0> :0.10172558376637511 Computing mean 
+3> <0.44.0> : 0.10172558376637511 Received from <0.39.0> :0.1017943383117727 Reply Computing mean 
+3> <0.39.0> : 0.1017599610390739 Received from <0.40.0> :0.10068798398540452 Computing mean 
+3> <0.40.0> : 0.10068798398540452 Received from <0.39.0> :0.1017599610390739 Reply Computing mean 
+3> <0.39.0> : 0.10122397251223922 Received from <0.46.0> :0.09935530578098856 Computing mean 
+3> <0.46.0> : 0.09935530578098856 Received from <0.39.0> :0.10122397251223922 Reply Computing mean 
+3> <0.39.0> : 0.10028963914661389 Received from <0.39.0> :0.101324859634996 Reply Computing mean 
+3> <0.40.0> : 0.10122397251223922 Received from <0.41.0> :0.10194516700713002 Computing mean 
+3> <0.41.0> : 0.10194516700713002 Received from <0.40.0> :0.10122397251223922 Reply Computing mean 
+3> <0.40.0> : 0.10158456975968462 Received from <0.47.0> :0.10169611161540221 Computing mean 
+3> <0.47.0> : 0.10169611161540221 Received from <0.40.0> :0.10158456975968462 Reply Computing mean 
+3> <0.40.0> : 0.1016403406875434 Received from <0.43.0> :0.10104864630886684 Computing mean 
+3> <0.43.0> : 0.10104864630886684 Received from <0.40.0> :0.1016403406875434 Reply Computing mean 
+3> <0.40.0> : 0.10134449349820512 Received from <0.45.0> :0.1012366833895933 Computing mean 
+3> <0.45.0> : 0.1012366833895933 Received from <0.40.0> :0.10134449349820512 Reply Computing mean 
+3> <0.40.0> : 0.10129058844389921 Received from <0.42.0> :0.10092237429115528 Computing mean 
+3> <0.42.0> : 0.10092237429115528 Received from <0.40.0> :0.10129058844389921 Reply Computing mean 
+3> <0.40.0> : 0.10110648136752724 Received from <0.38.0> :0.101324859634996 Computing mean 
+3> <0.38.0> : 0.101324859634996 Received from <0.40.0> :0.10110648136752724 Reply Computing mean 
+3> <0.40.0> : 0.10121567050126162 Received from <0.39.0> :0.10080724939080495 Computing mean 
+3> <0.39.0> : 0.10080724939080495 Received from <0.40.0> :0.10121567050126162 Reply Computing mean 
+3> <0.40.0> : 0.10101145994603328 Received from <0.44.0> :0.1017599610390739 Computing mean 
+3> <0.44.0> : 0.1017599610390739 Received from <0.40.0> :0.10101145994603328 Reply Computing mean 
+3> <0.40.0> : 0.1013857104925536 Received from <0.40.0> :0.10122397251223922 Computing mean 
+3> <0.40.0> : 0.10130484150239641 Received from <0.46.0> :0.10028963914661389 Computing mean 
+3> <0.46.0> : 0.10028963914661389 Received from <0.40.0> :0.10130484150239641 Reply Computing mean 
+3> <0.40.0> : 0.10079724032450516 Received from <0.40.0> :0.1013857104925536 Reply Computing mean 
+3> <0.44.0> : 0.1013857104925536 Received from <0.47.0> :0.1016403406875434 Computing mean 
+3> <0.47.0> : 0.1016403406875434 Received from <0.44.0> :0.1013857104925536 Reply Computing mean 
+3> <0.44.0> : 0.1015130255900485 Received from <0.42.0> :0.10110648136752724 Computing mean 
+3> <0.42.0> : 0.10110648136752724 Received from <0.44.0> :0.1015130255900485 Reply Computing mean 
+3> <0.44.0> : 0.10130975347878787 Received from <0.46.0> :0.10079724032450516 Computing mean 
+3> <0.46.0> : 0.10079724032450516 Received from <0.44.0> :0.10130975347878787 Reply Computing mean 
+3> <0.44.0> : 0.10105349690164651 Received from <0.38.0> :0.10121567050126162 Computing mean 
+3> <0.38.0> : 0.10121567050126162 Received from <0.44.0> :0.10105349690164651 Reply Computing mean 
+3> <0.44.0> : 0.10113458370145406 Received from <0.39.0> :0.10101145994603328 Computing mean 
+3> <0.39.0> : 0.10101145994603328 Received from <0.44.0> :0.10113458370145406 Reply Computing mean 
+3> <0.44.0> : 0.10107302182374367 Received from <0.44.0> :0.1013857104925536 Computing mean 
+3> <0.44.0> : 0.10122936615814863 Received from <0.41.0> :0.10158456975968462 Computing mean 
+3> <0.41.0> : 0.10158456975968462 Received from <0.44.0> :0.10122936615814863 Reply Computing mean 
+3> <0.44.0> : 0.10140696795891663 Received from <0.40.0> :0.10109147540852938 Computing mean 
+3> <0.40.0> : 0.10109147540852938 Received from <0.44.0> :0.10140696795891663 Reply Computing mean 
+3> <0.44.0> : 0.101249221683723 Received from <0.43.0> :0.10134449349820512 Computing mean 
+3> <0.43.0> : 0.10134449349820512 Received from <0.44.0> :0.101249221683723 Reply Computing mean 
+3> <0.44.0> : 0.10129685759096406 Received from <0.45.0> :0.10129058844389921 Computing mean 
+3> <0.45.0> : 0.10129058844389921 Received from <0.44.0> :0.10129685759096406 Reply Computing mean 
+3> <0.44.0> : 0.10129372301743164 Received from <0.44.0> :0.10107302182374367 Reply Computing mean 
+3> <0.39.0> : 0.10107302182374367 Received from <0.41.0> :0.10140696795891663 Computing mean 
+3> <0.41.0> : 0.10140696795891663 Received from <0.39.0> :0.10107302182374367 Reply Computing mean 
+3> <0.39.0> : 0.10123999489133015 Received from <0.43.0> :0.10129685759096406 Computing mean 
+3> <0.43.0> : 0.10129685759096406 Received from <0.39.0> :0.10123999489133015 Reply Computing mean 
+3> <0.39.0> : 0.1012684262411471 Received from <0.42.0> :0.10130975347878787 Computing mean 
+3> <0.42.0> : 0.10130975347878787 Received from <0.39.0> :0.1012684262411471 Reply Computing mean 
+3> <0.39.0> : 0.10128908985996748 Received from <0.45.0> :0.10129372301743164 Computing mean 
+3> <0.45.0> : 0.10129372301743164 Received from <0.39.0> :0.10128908985996748 Reply Computing mean 
+3> <0.39.0> : 0.10129140643869956 Received from <0.47.0> :0.1015130255900485 Computing mean 
+3> <0.47.0> : 0.1015130255900485 Received from <0.39.0> :0.10129140643869956 Reply Computing mean 
+3> <0.39.0> : 0.10140221601437403 Received from <0.46.0> :0.10105349690164651 Computing mean 
+3> <0.46.0> : 0.10105349690164651 Received from <0.39.0> :0.10140221601437403 Reply Computing mean 
+3> <0.39.0> : 0.10122785645801027 Received from <0.38.0> :0.10113458370145406 Computing mean 
+3> <0.38.0> : 0.10113458370145406 Received from <0.39.0> :0.10122785645801027 Reply Computing mean 
+3> <0.39.0> : 0.10118122007973217 Received from <0.44.0> :0.10118337242058766 Computing mean 
+3> <0.44.0> : 0.10118337242058766 Received from <0.39.0> :0.10118122007973217 Reply Computing mean 
+3> <0.39.0> : 0.10118229625015991 Received from <0.39.0> :0.10107302182374367 Computing mean 
+3> <0.39.0> : 0.10112765903695178 Received from <0.40.0> :0.101249221683723 Computing mean 
+3> <0.40.0> : 0.101249221683723 Received from <0.39.0> :0.10112765903695178 Reply Computing mean 
+3> <0.39.0> : 0.10118844036033739 Received from <0.39.0> :0.10118229625015991 Reply Computing mean 
+3> <0.43.0> : 0.1012684262411471 Received from <0.40.0> :0.10118844036033739 Computing mean 
+3> <0.40.0> : 0.10118844036033739 Received from <0.43.0> :0.1012684262411471 Reply Computing mean 
+3> <0.43.0> : 0.10122843330074224 Received from <0.43.0> :0.1012684262411471 Computing mean 
+3> <0.43.0> : 0.10124842977094467 Received from <0.41.0> :0.10123999489133015 Computing mean 
+3> <0.43.0> : 0.10124421233113741 Received from <0.47.0> :0.10140221601437403 Computing mean 
+3> <0.43.0> : 0.10132321417275572 Received from <0.42.0> :0.10128908985996748 Computing mean 
+3> <0.43.0> : 0.1013061520163616 Received from <0.45.0> :0.10129140643869956 Computing mean 
+3> <0.43.0> : 0.10129877922753058 Received from <0.46.0> :0.10122785645801027 Computing mean 
+3> <0.43.0> : 0.10126331784277043 Received from <0.38.0> :0.10118122007973217 Computing mean 
+3> <0.43.0> : 0.1012222689612513 Received from <0.44.0> :0.10118229625015991 Computing mean 
+3> <0.43.0> : 0.1012022826057056 Received from <0.39.0> :0.10118536830524866 Computing mean 
+3> <0.41.0> : 0.10123999489133015 Received from <0.43.0> :0.10124842977094467 Reply Computing mean 
+3> <0.47.0> : 0.10140221601437403 Received from <0.43.0> :0.10124421233113741 Reply Computing mean 
+3> <0.42.0> : 0.10128908985996748 Received from <0.43.0> :0.10132321417275572 Reply Computing mean 
+3> <0.45.0> : 0.10129140643869956 Received from <0.43.0> :0.1013061520163616 Reply Computing mean 
+3> <0.46.0> : 0.10122785645801027 Received from <0.43.0> :0.10129877922753058 Reply Computing mean 
+3> <0.38.0> : 0.10118122007973217 Received from <0.43.0> :0.10126331784277043 Reply Computing mean 
+3> <0.44.0> : 0.10118229625015991 Received from <0.43.0> :0.1012222689612513 Reply Computing mean 
+3> <0.39.0> : 0.10118536830524866 Received from <0.43.0> :0.1012022826057056 Reply Computing mean 
+3> <0.43.0> : 0.10119382545547713 Received from <0.43.0> :0.10122843330074224 Reply Computing mean 
+3> <0.40.0> : 0.10122843330074224 Received from <0.41.0> :0.10124421233113741 Computing mean 
+3> <0.41.0> : 0.10124421233113741 Received from <0.40.0> :0.10122843330074224 Reply Computing mean 
+3> <0.40.0> : 0.10123632281593983 Received from <0.43.0> :0.1012111293781097 Computing mean 
+3> <0.43.0> : 0.1012111293781097 Received from <0.40.0> :0.10123632281593983 Reply Computing mean 
+3> <0.40.0> : 0.10122372609702476 Received from <0.47.0> :0.10132321417275572 Computing mean 
+3> <0.47.0> : 0.10132321417275572 Received from <0.40.0> :0.10122372609702476 Reply Computing mean 
+3> <0.40.0> : 0.10127347013489024 Received from <0.42.0> :0.1013061520163616 Computing mean 
+3> <0.42.0> : 0.1013061520163616 Received from <0.40.0> :0.10127347013489024 Reply Computing mean 
+3> <0.40.0> : 0.10128981107562593 Received from <0.40.0> :0.10122843330074224 Computing mean 
+3> <0.40.0> : 0.10125912218818409 Received from <0.45.0> :0.10129877922753058 Computing mean 
+3> <0.45.0> : 0.10129877922753058 Received from <0.40.0> :0.10125912218818409 Reply Computing mean 
+3> <0.40.0> : 0.10127895070785733 Received from <0.46.0> :0.10126331784277043 Computing mean 
+3> <0.46.0> : 0.10126331784277043 Received from <0.40.0> :0.10127895070785733 Reply Computing mean 
+3> <0.40.0> : 0.10127113427531388 Received from <0.38.0> :0.1012222689612513 Computing mean 
+3> <0.38.0> : 0.1012222689612513 Received from <0.40.0> :0.10127113427531388 Reply Computing mean 
+3> <0.40.0> : 0.10124670161828259 Received from <0.44.0> :0.1012022826057056 Computing mean 
+3> <0.44.0> : 0.1012022826057056 Received from <0.40.0> :0.10124670161828259 Reply Computing mean 
+3> <0.40.0> : 0.1012244921119941 Received from <0.39.0> :0.10119382545547713 Computing mean 
+3> <0.39.0> : 0.10119382545547713 Received from <0.40.0> :0.1012244921119941 Reply Computing mean 
+3> <0.40.0> : 0.10120915878373561 Received from <0.40.0> :0.10128981107562593 Reply Computing mean 
+3> <0.40.0> : 0.10124948492968078 Received from <0.42.0> :0.10128981107562593 Reply Computing mean 
+3> <0.42.0> : 0.10128981107562593 Received from <0.40.0> :0.10124948492968078 Computing mean 
+3> <0.42.0> : 0.10126964800265335 Received from <0.41.0> :0.10123632281593983 Computing mean 
+3> <0.41.0> : 0.10123632281593983 Received from <0.42.0> :0.10126964800265335 Reply Computing mean 
+3> <0.42.0> : 0.10125298540929659 Received from <0.43.0> :0.10122372609702476 Computing mean 
+3> <0.43.0> : 0.10122372609702476 Received from <0.42.0> :0.10125298540929659 Reply Computing mean 
+3> <0.42.0> : 0.10123835575316067 Received from <0.47.0> :0.10127347013489024 Computing mean 
+3> <0.47.0> : 0.10127347013489024 Received from <0.42.0> :0.10123835575316067 Reply Computing mean 
+3> <0.42.0> : 0.10125591294402546 Received from <0.45.0> :0.10127895070785733 Computing mean 
+3> <0.45.0> : 0.10127895070785733 Received from <0.42.0> :0.10125591294402546 Reply Computing mean 
+3> <0.42.0> : 0.10126743182594139 Received from <0.46.0> :0.10127113427531388 Computing mean 
+3> <0.46.0> : 0.10127113427531388 Received from <0.42.0> :0.10126743182594139 Reply Computing mean 
+3> <0.42.0> : 0.10126928305062763 Received from <0.38.0> :0.10124670161828259 Computing mean 
+3> <0.38.0> : 0.10124670161828259 Received from <0.42.0> :0.10126928305062763 Reply Computing mean 
+3> <0.42.0> : 0.10125799233445511 Received from <0.44.0> :0.1012244921119941 Computing mean 
+3> <0.44.0> : 0.1012244921119941 Received from <0.42.0> :0.10125799233445511 Reply Computing mean 
+3> <0.42.0> : 0.1012412422232246 Received from <0.39.0> :0.10120915878373561 Computing mean 
+3> <0.39.0> : 0.10120915878373561 Received from <0.42.0> :0.1012412422232246 Reply Computing mean 
+3> <0.42.0> : 0.1012252005034801 Received from <0.42.0> :0.10125298540929659 Computing mean 
+3> <0.42.0> : 0.10123909295638835 Received from <0.42.0> :0.1012252005034801 Reply Computing mean 
+3> <0.42.0> : 0.10123214672993422 Received from <0.42.0> :0.10123214672993422 Computing mean 
+3> <0.42.0> : 0.10123214672993422 Received from <0.42.0> :0.10123214672993422 Reply Computing mean 
+3> <0.42.0> : 0.10123214672993422 Received from <0.40.0> :0.10126964800265335 Computing mean 
+3> <0.40.0> : 0.10126964800265335 Received from <0.42.0> :0.10123214672993422 Reply Computing mean 
+3> <0.42.0> : 0.10125089736629378 Received from <0.41.0> :0.10125298540929659 Computing mean 
+3> <0.41.0> : 0.10125298540929659 Received from <0.42.0> :0.10125089736629378 Reply Computing mean 
+3> <0.42.0> : 0.10125194138779518 Received from <0.43.0> :0.10123835575316067 Computing mean 
+3> <0.43.0> : 0.10123835575316067 Received from <0.42.0> :0.10125194138779518 Reply Computing mean 
+3> <0.42.0> : 0.10124514857047792 Received from <0.47.0> :0.10125591294402546 Computing mean 
+3> <0.47.0> : 0.10125591294402546 Received from <0.42.0> :0.10124514857047792 Reply Computing mean 
+3> <0.42.0> : 0.10125053075725168 Received from <0.45.0> :0.10126743182594139 Computing mean 
+3> <0.45.0> : 0.10126743182594139 Received from <0.42.0> :0.10125053075725168 Reply Computing mean 
+3> <0.42.0> : 0.10125898129159654 Received from <0.46.0> :0.10126928305062763 Computing mean 
+3> <0.46.0> : 0.10126928305062763 Received from <0.42.0> :0.10125898129159654 Reply Computing mean 
+3> <0.42.0> : 0.10126413217111208 Received from <0.38.0> :0.10125799233445511 Computing mean 
+3> <0.38.0> : 0.10125799233445511 Received from <0.42.0> :0.10126413217111208 Reply Computing mean 
+3> <0.42.0> : 0.10126106225278358 Received from <0.44.0> :0.1012412422232246 Computing mean 
+3> <0.44.0> : 0.1012412422232246 Received from <0.42.0> :0.10126106225278358 Reply Computing mean 
+3> <0.42.0> : 0.1012511522380041 Received from <0.39.0> :0.1012252005034801 Computing mean 
+3> <0.39.0> : 0.1012252005034801 Received from <0.42.0> :0.1012511522380041 Reply Computing mean 
+3> 
