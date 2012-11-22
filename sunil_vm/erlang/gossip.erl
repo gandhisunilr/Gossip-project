@@ -90,15 +90,7 @@ threadnodes(TransitionMatrix,Pids,Myvalue) ->
         	threadnodes(TransitionMatrix,Pids, calculate( Function, Myvalue,Value));
 
         {tick, Function}->
-<<<<<<< HEAD
-        	io:format("tick~p ~n",[self()]),
-       		self() ! {send,Function, Size},
-            timer:send_after(1000, tick),
-            threadnodes(TransitionMatrix,Pids,Myvalue,Size-1)
-    end.
-=======
        		self() ! {send,Function},
             timer:send_after(1000, {tick, Function}),
             threadnodes(TransitionMatrix,Pids,Myvalue)
     end.
->>>>>>> 1fc24d70911dfae2df26d317af3e1154f611793e
