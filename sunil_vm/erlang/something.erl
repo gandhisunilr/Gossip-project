@@ -2,13 +2,13 @@
 -compile(export_all).
 -import(matrix).
 
-something() ->
-	Pid =spawn_link(fun() -> myprocess() end),
-	Pid ! {tick, [1,2,3,4] }.
+something(FileName) ->
+    {ok, Device} = file:open(FileName, [read]),
+    get_all_lines(Device, []).
 
-myprocess()->
-    receive
-    	{ tick, Pids } ->
-    		% write code for doing things periodically
-    		io:format("This is list Pids: ~p",[Pids])
-		end.
+get_all_lines(Device, Accum) ->
+    case io:fread(Device, "","~f") of
+    	eof -> file:close(Device), Accum;
+    	{ok, [N]} -> 
+            get_all_lines(Device, Accum ++ [N])
+    end.
