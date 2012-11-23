@@ -58,7 +58,7 @@ getList(Key, L1, L2) ->
 calculate(Function,Myvalue,Value) ->
 case Function of 
         max -> getList(erlang:max(lcom:lcom(Myvalue, max),lcom:lcom(Value, max)), Myvalue, value);
-        min -> [erlang:min(hd(Myvalue),hd(Value))];
+        min -> getList(erlang:min(lcom:lcom(Myvalue, min),lcom:lcom(Value, min)), Myvalue, value);
         mean ->[(hd(Myvalue) + hd(Value))/2];
         update -> [1]
     end.
@@ -76,7 +76,7 @@ end.
 threadnodes(TransitionMatrix,Pids,Myvalue) ->
 	%getneighbours()
 	receive
-		%get the fucking pids of all processes,
+		%get the pids of all processes,
         {pid, Pidsmsg } ->
         	io:format("Yay I Got Pids~p ~n",[self()]),
         	threadnodes(TransitionMatrix,Pidsmsg,Myvalue);
