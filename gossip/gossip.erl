@@ -13,12 +13,13 @@ start(Function,Input)->
 
 gossip(Function,TransitionMatrix,Input) ->
     Fraglist = genfrags(10),
-	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input, Fraglist),
+	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input, FragList),
 	sendpids(length(Pids),Pids),
 	starttimer(Pids,Function).
 	%we must get list of list which contains tuples of index and floating point no. for each node
 	% [[(index, value)()()],[(index, value)()],..] fraglist= getfragmentlist(N) 
 	% threadnodes <- create <- fraglist
+
 
 starttimer(Pids,Function) ->
 	hd(Pids) ! {tick, Function},
@@ -33,14 +34,14 @@ sendpids(I,Pids) ->
 	lists:nth(I,Pids) ! {pid, Pids},
 	sendpids(I-1,Pids).
 
-create(0,Pids,TransitionMatrix,Input, F) -> Pids;
-create(I,Pids,TransitionMatrix,Input, F)->
-	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I,Input, F)) end),
-	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input, F).
+create(0,Pids,TransitionMatrix,Input, FragList) -> Pids;
+create(I,Pids,TransitionMatrix,Input, FragList)->
+    Fragment = lists:nth(I, FragList);
+	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I,Input), Fragment) end),
+	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input, FragList).
 
 initthread(I,Input,F) -> 
 	case Input of 
-        fragment -> lists:nth(random:uniform(length(F)), F);
         identity -> [I];
         pushpull -> if
         	I == 1 ->
@@ -57,9 +58,11 @@ getList(Key, L1, L2) ->
 
 calculate(Function,Myvalue,Value) ->
 case Function of 
-        max -> getList(erlang:max(lcom:lcom(Myvalue, max),lcom:lcom(Value, max)), Myvalue, value);
-        min -> getList(erlang:min(lcom:lcom(Myvalue, min),lcom:lcom(Value, min)), Myvalue, value);
-        mean ->[(hd(Myvalue) + hd(Value))/2];
+        %TODO: No need of passing around fragments, pass only the max, min and average of the fragment
+        %TODO: No need of updating fragments, only that message passed aroung nodes
+        max-> [erlang:max(hd(Myvalue), hd(Value))];
+        min-> [erlang:min(hd(Myvalue), hd(Value))];
+        mean-> [(hd(Myvalue) + hd(Value))/2];
         update -> [1]
     end.
 
@@ -73,33 +76,33 @@ case Type of
 end.
 	
 
-threadnodes(TransitionMatrix,Pids,Myvalue) ->
+threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
 	%getneighbours()
 	receive
 		%get the pids of all processes,
         {pid, Pidsmsg } ->
         	io:format("Yay I Got Pids~p ~n",[self()]),
-        	threadnodes(TransitionMatrix,Pidsmsg,Myvalue);
+        	threadnodes(TransitionMatrix,Pidsmsg,Myvalue,Fragment);
         
         %Send Function	This function must be executed after every few minutes
         {send, Function} ->
         	Pid=selectneighbours(TransitionMatrix, Pids, self()),
         	Pid ! {Function, self(), Myvalue},
-        	threadnodes(TransitionMatrix,Pids, Myvalue);
+        	threadnodes(TransitionMatrix,Pids,Myvalue,Fragment);
 
         %Recieve Function from Process Pid with his value
         {Function, Pid, Value } ->
         	Pid ! { returnmsg, Function, self(), Myvalue },
         	printmsg(Function, return, [self(),Myvalue,Pid,Value]),
-        	threadnodes(TransitionMatrix,Pids, calculate( Function, Myvalue,Value));
+        	threadnodes(TransitionMatrix,Pids, calculate(Function,Myvalue,Value),Fragment);
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
         	printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
-        	threadnodes(TransitionMatrix,Pids, calculate( Function, Myvalue,Value));
+        	threadnodes(TransitionMatrix,Pids, calculate(Function, Myvalue,Value,Fragment));
 
         {tick, Function}->
        		self() ! {send,Function},
             timer:send_after(1000, {tick, Function}),
-            threadnodes(TransitionMatrix,Pids,Myvalue)
+            threadnodes(TransitionMatrix,Pids,Myvalue,Fragment)
     end.
