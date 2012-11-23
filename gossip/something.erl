@@ -28,4 +28,3 @@ fragmentize(P, N, F) when N > 0 ->
 
 fragmentize(P, N, F) when N == 0 ->
     F.
-
