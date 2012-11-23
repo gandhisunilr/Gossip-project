@@ -50,17 +50,13 @@ initthread(I,Input) ->
         end
     end.	
 
-getList(Key, L1, L2) ->
-    case lists:keyfind(Key, 2, L1) /= false of
-        true -> L1;
-        false -> L2
-    end.
-
 %Updates the fragment if the Value found otherwise returns.    
-upFound(Myvalue, {K, V}) ->
-    case lists:keyfind(K, 1, Myvalue) of,
+upFound(Myvalue, Value) ->
+    {K, V} = Value,
+    case lists:keyfind(K, 1, Myvalue) of
         false -> Myvalue;
-        X -> [{K, V}|lists:delete(X, Myvalue].
+        X -> [Value|lists:delete(X, Myvalue)]
+    end.
     
 
 calculate(Function,Myvalue,Value) ->
@@ -69,7 +65,7 @@ case Function of
         min-> [erlang:min(hd(Myvalue), hd(Value))];
         mean-> n = (hd(Myvalue) + hd(Value))/2,
             [n, (tl(Myvalue) + tl(Value))/n];
-        update -> [upFound(Myvalue, Value), Value] %[UpdatedValueOfFragment, UpdateValue] 
+        update -> [Value, upFound(Myvalue, Value)] %[Value, UpdatedValueOfFragment] 
     end.
 
 selectneighbours(TransitionMatrix, Pids, Pid) ->
@@ -102,13 +98,23 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
             FunValue = lister:summarize(Fragment, Function),
         	Pid ! { returnmsg, Function, self(), FunValue },
         	printmsg(Function, return, [self(), FunValue, Pid, Value]),
-        	threadnodes(TransitionMatrix,Pids, calculate(Function, FunValue, Value),Fragment);
+            Result = calculate(Function, FunValue, Value),
+            if 
+                Function == update ->
+        	        threadnodes(TransitionMatrix,Pids, hd(Result), tl(Result));
+                true -> threadnodes(TransitionMatrix, Pids, Result, Fragment)
+            end;
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
             FunValue = lister:summarize(Fragment, Function),
         	printmsg(Function, returnmsg, [self(), FunValue,Pid,Value]),
-        	threadnodes(TransitionMatrix,Pids, calculate(Function,FunValue,Value),Fragment);
+            Result = calculate(Function, FunValue, Value),
+            if 
+                Function == update ->
+        	        threadnodes(TransitionMatrix,Pids, hd(Result), tl(Result));
+                true -> threadnodes(TransitionMatrix, Pids, Result, Fragment)
+            end;
 
         {tick, Function}->
        		self() ! {send,Function},
