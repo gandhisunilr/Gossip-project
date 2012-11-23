@@ -56,14 +56,20 @@ getList(Key, L1, L2) ->
         false -> L2
     end.
 
+%Updates the fragment if the Value found otherwise returns.    
+upFound(Myvalue, {K, V}) ->
+    case lists:keyfind(K, 1, Myvalue) of,
+        false -> Myvalue;
+        X -> [{K, V}|lists:delete(X, Myvalue].
+    
+
 calculate(Function,Myvalue,Value) ->
 case Function of 
-        %TODO: No need of passing around fragments, pass only the max, min and average of the fragment
-        %TODO: No need of updating fragments, only that message passed aroung nodes
         max-> [erlang:max(hd(Myvalue), hd(Value))];
         min-> [erlang:min(hd(Myvalue), hd(Value))];
-        mean-> [(hd(Myvalue) + hd(Value))/2];
-        update -> [1]
+        mean-> n = (hd(Myvalue) + hd(Value))/2,
+            [n, (tl(Myvalue) + tl(Value))/n];
+        update -> [upFound(Myvalue, Value), Value] %[UpdatedValueOfFragment, UpdateValue] 
     end.
 
 selectneighbours(TransitionMatrix, Pids, Pid) ->
