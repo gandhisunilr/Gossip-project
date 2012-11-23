@@ -1,6 +1,6 @@
 -module(gossip).
 -import(matrix).
--import(lcom).
+-import(lister).
 -import(fragreader, [genfrags/1]).
 -compile(export_all).
 
@@ -12,7 +12,7 @@ start(Function,Input)->
 	gossip(Function,P,Input).
 
 gossip(Function,TransitionMatrix,Input) ->
-    Fraglist = genfrags(10),
+    FragList = genfrags(10),
 	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input, FragList),
 	sendpids(length(Pids),Pids),
 	starttimer(Pids,Function).
@@ -36,11 +36,11 @@ sendpids(I,Pids) ->
 
 create(0,Pids,TransitionMatrix,Input, FragList) -> Pids;
 create(I,Pids,TransitionMatrix,Input, FragList)->
-    Fragment = lists:nth(I, FragList);
+    Fragment = lists:nth(I, FragList),
 	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I,Input), Fragment) end),
 	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input, FragList).
 
-initthread(I,Input,F) -> 
+initthread(I,Input) -> 
 	case Input of 
         identity -> [I];
         pushpull -> if
@@ -77,29 +77,32 @@ end.
 	
 
 threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
+    %TODO: Do we need Myvalue as it can be calculated from Fragment?
 	%getneighbours()
 	receive
 		%get the pids of all processes,
         {pid, Pidsmsg } ->
-        	io:format("Yay I Got Pids~p ~n",[self()]),
+        	io:format("I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
         	threadnodes(TransitionMatrix,Pidsmsg,Myvalue,Fragment);
         
         %Send Function	This function must be executed after every few minutes
         {send, Function} ->
         	Pid=selectneighbours(TransitionMatrix, Pids, self()),
-        	Pid ! {Function, self(), Myvalue},
+        	Pid ! {Function, self(), lister:summarize(Fragment, Function)},
         	threadnodes(TransitionMatrix,Pids,Myvalue,Fragment);
 
         %Recieve Function from Process Pid with his value
         {Function, Pid, Value } ->
-        	Pid ! { returnmsg, Function, self(), Myvalue },
-        	printmsg(Function, return, [self(),Myvalue,Pid,Value]),
-        	threadnodes(TransitionMatrix,Pids, calculate(Function,Myvalue,Value),Fragment);
+            FunValue = lister:summarize(Fragment, Function),
+        	Pid ! { returnmsg, Function, self(), FunValue },
+        	printmsg(Function, return, [self(), FunValue, Pid, Value]),
+        	threadnodes(TransitionMatrix,Pids, calculate(Function, FunValue, Value),Fragment);
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
-        	printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
-        	threadnodes(TransitionMatrix,Pids, calculate(Function, Myvalue,Value,Fragment));
+            FunValue = lister:summarize(Fragment, Function),
+        	printmsg(Function, returnmsg, [self(), FunValue,Pid,Value]),
+        	threadnodes(TransitionMatrix,Pids, calculate(Function,FunValue,Value),Fragment);
 
         {tick, Function}->
        		self() ! {send,Function},
