@@ -7,8 +7,9 @@ Change directory into 'gossip' and start the erl interpreter
 
 inside erl type 
 
- >c(gossip). #Ignore the warnings for now
- >gossip:start(max, identity).
+1>c(gossip). #Ignore the warnings for now
+
+2>gossip:start(max, identity).
 
 Change max into any function you wish to compute. {max, min, mean, update}
 
