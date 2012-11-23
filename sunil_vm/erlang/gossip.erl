@@ -1,5 +1,7 @@
 -module(gossip).
 -import(matrix).
+-import(lcom).
+-import(fragreader, [genfrags/1]).
 -compile(export_all).
 
 start(Function,Input)->
@@ -10,7 +12,8 @@ start(Function,Input)->
 	gossip(Function,P,Input).
 
 gossip(Function,TransitionMatrix,Input) ->
-	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input),
+    Fraglist = genfrags(10),
+	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input, Fraglist),
 	sendpids(length(Pids),Pids),
 	starttimer(Pids,Function).
 	%we must get list of list which contains tuples of index and floating point no. for each node
@@ -30,14 +33,14 @@ sendpids(I,Pids) ->
 	lists:nth(I,Pids) ! {pid, Pids},
 	sendpids(I-1,Pids).
 
-create(0,Pids,TransitionMatrix,Input) -> Pids;
-create(I,Pids,TransitionMatrix,Input)->
-	%getfragments(I)
-	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I,Input)) end),
-	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input).
+create(0,Pids,TransitionMatrix,Input, F) -> Pids;
+create(I,Pids,TransitionMatrix,Input, F)->
+	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I,Input, F)) end),
+	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input, F).
 
-initthread(I,Input) -> 
+initthread(I,Input,F) -> 
 	case Input of 
+        fragment -> lists:nth(random:uniform(length(F)), F);
         identity -> [I];
         pushpull -> if
         	I == 1 ->
@@ -46,9 +49,15 @@ initthread(I,Input) ->
         end
     end.	
 
+getList(Key, L1, L2) ->
+    case lists:keyfind(Key, 2, L1) /= false of
+        true -> L1;
+        false -> L2
+    end.
+
 calculate(Function,Myvalue,Value) ->
 case Function of 
-        max -> [erlang:max(hd(Myvalue),hd(Value))];
+        max -> getList(erlang:max(lcom:lcom(Myvalue, max),lcom:lcom(Value, max)), Myvalue, value);
         min -> [erlang:min(hd(Myvalue),hd(Value))];
         mean ->[(hd(Myvalue) + hd(Value))/2];
         update -> [1]
