@@ -5,7 +5,11 @@
 
 summarize([], Op) -> empty;
 
-summarize([H|T], Op) -> summarize([H|T], [], Op). 
+summarize(List, Op) ->
+    case Op of
+        update -> List;
+        X -> summarize(List, [], Op)
+    end.
 
 summarize([], L, Op) -> 
     case Op of
