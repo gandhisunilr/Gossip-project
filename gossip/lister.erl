@@ -1,14 +1,18 @@
 %Finds the maximum, minimum or sum based on the second element of the list. 
-%summarize([{2, 2}, {3, 3}, {1, 4}], max) => [4]
+%getValue([{2, 2}, {3, 3}, {1, 4}], max) => [4]
 -module(lister).
 -compile(export_all).
 
-summarize([], Op) -> empty;
+getValue(I, [], Op, InputList) -> empty;
 
-summarize(List, Op) ->
+getValue(I, List, Op, InputList) ->
     case Op of
-        update -> List;
-        X -> summarize(List, [], Op)
+        update -> 
+            if
+                I == 1 -> hd(InputList);
+                true -> {0, 0}
+            end;
+        X-> summarize(List, [], Op)
     end.
 
 summarize([], L, Op) -> 
