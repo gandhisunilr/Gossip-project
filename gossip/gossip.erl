@@ -63,8 +63,7 @@ calculate(Function,Myvalue,Value) ->
 case Function of 
         max-> [erlang:max(hd(Myvalue), hd(Value))];
         min-> [erlang:min(hd(Myvalue), hd(Value))];
-        mean-> n = (hd(Myvalue) + hd(Value))/2,
-            [n, (tl(Myvalue) + tl(Value))/n];
+        mean-> [(hd(Myvalue) + hd(Value))/2, (tl(Myvalue) + tl(Value))/(hd(Myvalue) + hd(Value))/2];
         update -> [Value, upFound(Myvalue, Value)] %[Value, UpdatedValueOfFragment] 
     end.
 

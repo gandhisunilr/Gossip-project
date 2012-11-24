@@ -15,7 +15,7 @@ summarize([], L, Op) ->
     case Op of
         max -> [lists:max(L)];
         min -> [lists:min(L)];
-        sum -> [erlang:length(L), lists:sum(L)]
+        mean -> [erlang:length(L), lists:sum(L)]
     end;
     
 summarize([H|T], L, Op) -> 
