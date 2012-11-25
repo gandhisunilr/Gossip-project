@@ -1,18 +1,19 @@
 -module(gossip).
 -import(matrix).
 -import(lister).
+-import(updateFound).
 -import(fragreader, [genfrags/1]).
 -compile(export_all).
 
-start(Function,Input)->
+start(Function,Input,InputList)->
 	%P = generate_topology()
 	P=matrix:new(10,10,fun (Column, Row, Columns, _) ->                      
 	Columns * (Row - 1) + Column
 	end),
-	gossip(Function,P,Input).
+	gossip(Function,P,Input,InputList).
 
 gossip(Function,TransitionMatrix,Input) ->
-    FragList = genfrags(10),
+    FragList = genfrags(length(TransitionMatrix)),
 	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input, FragList),
 	sendpids(length(Pids),Pids),
 	starttimer(Pids,Function).
@@ -34,37 +35,30 @@ sendpids(I,Pids) ->
 	lists:nth(I,Pids) ! {pid, Pids},
 	sendpids(I-1,Pids).
 
-create(0,Pids,TransitionMatrix,Input, FragList) -> Pids;
-create(I,Pids,TransitionMatrix,Input, FragList)->
+create(0,Pids,TransitionMatrix,Input,Function, FragList,InputList) -> Pids;
+create(I,Pids,TransitionMatrix,Input,Function, FragList,InputList)->
     Fragment = lists:nth(I, FragList),
-	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I,Input), Fragment) end),
-	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input, FragList).
+	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I,Input,Fragment,Function,InputList), Fragment) end),
+	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input, FragList,InputList).
 
-initthread(I,Input) -> 
+initthread(I,Input,Fragment,Function,InputList) -> 
 	case Input of 
         identity -> [I];
         pushpull -> if
         	I == 1 ->
         		[1];
         	true -> [0]
+        fragment -> 
+        lister:getValue(I,Fragment, Function,InputList); 
         end
     end.	
 
-%Updates the fragment if the Value found otherwise returns.    
-upFound(Myvalue, Value) ->
-    {K, V} = Value,
-    case lists:keyfind(K, 1, Myvalue) of
-        false -> Myvalue;
-        X -> [Value|lists:delete(X, Myvalue)]
-    end.
-    
-
-calculate(Function,Myvalue,Value) ->
+calculate(Function,Myvalue,Value,Fragment) ->
 case Function of 
-        max-> [erlang:max(hd(Myvalue), hd(Value))];
-        min-> [erlang:min(hd(Myvalue), hd(Value))];
-        mean-> [(hd(Myvalue) + hd(Value))/2, (tl(Myvalue) + tl(Value))/(hd(Myvalue) + hd(Value))/2];
-        update -> [Value, upFound(Myvalue, Value)] %[Value, UpdatedValueOfFragment] 
+        max-> [[erlang:max(hd(Myvalue), hd(Value))],Fragment];
+        min-> [[erlang:min(hd(Myvalue), hd(Value))],Fragment];
+        mean->[[(hd(Myvalue) + hd(Value))/2, (tl(Myvalue) + tl(Value))/(hd(Myvalue) + hd(Value))/2],Fragment];
+        update -> updateFound(Myvalue, Value,Fragment)
     end.
 
 selectneighbours(TransitionMatrix, Pids, Pid) ->
@@ -89,32 +83,20 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
         %Send Function	This function must be executed after every few minutes
         {send, Function} ->
         	Pid=selectneighbours(TransitionMatrix, Pids, self()),
-        	Pid ! {Function, self(), lister:summarize(Fragment, Function)},
+        	Pid ! {Function, self(), Myvalue},
         	threadnodes(TransitionMatrix,Pids,Myvalue,Fragment);
 
         %Recieve Function from Process Pid with his value
         {Function, Pid, Value } ->
-            FunValue = lister:summarize(Fragment, Function),
         	Pid ! { returnmsg, Function, self(), FunValue },
         	printmsg(Function, return, [self(), FunValue, Pid, Value]),
-            Result = calculate(Function, FunValue, Value),
-            if 
-                Function == update ->
-        	        threadnodes(TransitionMatrix,Pids, hd(Result), tl(Result));
-                true -> threadnodes(TransitionMatrix, Pids, Result, Fragment)
-            end;
+            threadnodes(TransitionMatrix,Pids, lists:nth(1,calculate( Function, Myvalue,Value,Fragment)),lists:nth(2,calculate( Function, Myvalue,Value,Fragment)));
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
-            FunValue = lister:summarize(Fragment, Function),
-        	printmsg(Function, returnmsg, [self(), FunValue,Pid,Value]),
-            Result = calculate(Function, FunValue, Value),
-            if 
-                Function == update ->
-        	        threadnodes(TransitionMatrix,Pids, hd(Result), tl(Result));
-                true -> threadnodes(TransitionMatrix, Pids, Result, Fragment)
-            end;
-
+            printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
+            threadnodes(TransitionMatrix,Pids, lists:nth(1,calculate( Function, Myvalue,Value,Fragment)),lists:nth(2,calculate( Function, Myvalue,Value,Fragment));
+            
         {tick, Function}->
        		self() ! {send,Function},
             timer:send_after(1000, {tick, Function}),
