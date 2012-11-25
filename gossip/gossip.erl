@@ -17,10 +17,7 @@ gossip(Function,TransitionMatrix,Input,InputList) ->
 	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input,Function, FragList,InputList),
 	sendpids(length(Pids),Pids),
 	starttimer(Pids,Function).
-	%we must get list of list which contains tuples of index and floating point no. for each node
-	% [[(index, value)()()],[(index, value)()],..] fraglist= getfragmentlist(N) 
-	% threadnodes <- create <- fraglist
-
+	
 
 starttimer(Pids,Function) ->
 	hd(Pids) ! {tick, Function},
@@ -57,7 +54,8 @@ calculate(Function,Myvalue,Value,Fragment) ->
 case Function of 
         max-> [[erlang:max(hd(Myvalue), hd(Value))],Fragment];
         min-> [[erlang:min(hd(Myvalue), hd(Value))],Fragment];
-        mean->[[(hd(Myvalue) + hd(Value))/2, (tl(Myvalue) + tl(Value))/(hd(Myvalue) + hd(Value))/2],Fragment];
+        mean->[[(hd(Myvalue) + hd(Value))/2],Fragment];
+        meanfragments->[[(hd(Myvalue) + hd(Value))/2, (tl(Myvalue) + tl(Value))/(hd(Myvalue) + hd(Value))/2],Fragment];
         update -> updateFound:upFound(Myvalue, Value,Fragment)
     end.
 
