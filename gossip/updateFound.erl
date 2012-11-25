@@ -10,7 +10,9 @@ upFound(Myvalue, Value, Fragment) ->
     end,
     case lists:keyfind(K, 1, Fragment) of
         false -> [[{K,V}], Fragment];
-        X -> [[{K,V}], [{K, V}|lists:delete(X, Fragment)]]
+        X -> Temp = [[{K,V}], [{K, V}|lists:delete(X, Fragment)]],
+        io:format("Updated Fragment, Previous ~p -> Now ~p~n", [Fragment, Temp]),
+        Temp
     end.
     
     
