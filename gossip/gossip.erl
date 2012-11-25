@@ -12,9 +12,9 @@ start(Function,Input,InputList)->
 	end),
 	gossip(Function,P,Input,InputList).
 
-gossip(Function,TransitionMatrix,Input) ->
+gossip(Function,TransitionMatrix,Input,InputList) ->
     FragList = genfrags(length(TransitionMatrix)),
-	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input, FragList),
+	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input,Function, FragList,InputList),
 	sendpids(length(Pids),Pids),
 	starttimer(Pids,Function).
 	%we must get list of list which contains tuples of index and floating point no. for each node
@@ -39,7 +39,7 @@ create(0,Pids,TransitionMatrix,Input,Function, FragList,InputList) -> Pids;
 create(I,Pids,TransitionMatrix,Input,Function, FragList,InputList)->
     Fragment = lists:nth(I, FragList),
 	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I,Input,Fragment,Function,InputList), Fragment) end),
-	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input, FragList,InputList).
+	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input,Function, FragList,InputList).
 
 initthread(I,Input,Fragment,Function,InputList) -> 
 	case Input of 
@@ -48,17 +48,17 @@ initthread(I,Input,Fragment,Function,InputList) ->
         	I == 1 ->
         		[1];
         	true -> [0]
+        end;
         fragment -> 
-        lister:getValue(I,Fragment, Function,InputList); 
-        end
-    end.	
+        lister:getValue(I,Fragment, Function,InputList) 
+    end.
 
 calculate(Function,Myvalue,Value,Fragment) ->
 case Function of 
         max-> [[erlang:max(hd(Myvalue), hd(Value))],Fragment];
         min-> [[erlang:min(hd(Myvalue), hd(Value))],Fragment];
         mean->[[(hd(Myvalue) + hd(Value))/2, (tl(Myvalue) + tl(Value))/(hd(Myvalue) + hd(Value))/2],Fragment];
-        update -> updateFound(Myvalue, Value,Fragment)
+        update -> updateFound:upFound(Myvalue, Value,Fragment)
     end.
 
 selectneighbours(TransitionMatrix, Pids, Pid) ->
@@ -88,14 +88,14 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
 
         %Recieve Function from Process Pid with his value
         {Function, Pid, Value } ->
-        	Pid ! { returnmsg, Function, self(), FunValue },
-        	printmsg(Function, return, [self(), FunValue, Pid, Value]),
+        	Pid ! { returnmsg, Function, self(), Myvalue },
+        	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
             threadnodes(TransitionMatrix,Pids, lists:nth(1,calculate( Function, Myvalue,Value,Fragment)),lists:nth(2,calculate( Function, Myvalue,Value,Fragment)));
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
             printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
-            threadnodes(TransitionMatrix,Pids, lists:nth(1,calculate( Function, Myvalue,Value,Fragment)),lists:nth(2,calculate( Function, Myvalue,Value,Fragment));
+            threadnodes(TransitionMatrix,Pids, lists:nth(1,calculate( Function, Myvalue,Value,Fragment)),lists:nth(2,calculate( Function, Myvalue,Value,Fragment)));
             
         {tick, Function}->
        		self() ! {send,Function},
