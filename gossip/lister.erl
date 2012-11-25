@@ -9,8 +9,8 @@ getValue(I, List, Op, InputList) ->
     case Op of
         update -> 
             if
-                I == 1 -> hd(InputList);
-                true -> {0, 0}
+                I == 1 -> [hd(InputList)];
+                true -> [{0, 0}]
             end;
         X-> summarize(List, [], Op)
     end.
