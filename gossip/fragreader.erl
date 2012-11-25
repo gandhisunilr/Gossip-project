@@ -1,10 +1,10 @@
 -module(fragreader).
 -compile(export_all).
 
-genfrags(N) ->
+genfrags(Nodes) ->
     {ok, Device} = file:open(randnofile, [read]),
-        P = get_all_lines(Device, [], 1),
-            fragmentize(P, N, []).
+        Parts = get_all_lines(Device, [], 1),
+            fragmentize(Parts, length(Parts),[], Nodes).
 
 get_all_lines(Device, Accum, Index) ->
 	case io:fread(Device, "","~f") of
@@ -13,18 +13,24 @@ get_all_lines(Device, Accum, Index) ->
              	get_all_lines(Device, Accum ++ [{Index, N}], Index+1)
 	end.
 
-add3(P, N, Value, F, I) when I == 0 ->
-	fragmentize(P, N-1, F); %return to fragmentize
+fragmentize(Parts, Len, Fragments, Nodes) when length(Fragments) < Nodes ->
+    %Initial N Fragment Creation
+	fragmentize(Parts, Len, Fragments ++ [[lists:nth(random:uniform(length(Parts)), Parts)]], Nodes);
 
-add3(P, N, Value, F, I) when I > 0 ->
-    add3(P, N, Value, [ [Value|lists:nth(random:uniform(length(F)), F)] | lists:delete(lists:nth(random:uniform(length(F)), F), F)], I-1).
+fragmentize(Parts, Len, Fragments, Nodes) when Len > 0 ->
+    %Selecting a value from Parts and calling add3
+	add3(Parts, Len, lists:nth(Len, Parts), Fragments, 3, Nodes);
 
-fragmentize(P, N, F) when length(F) < N ->
-	fragmentize(P, N, F ++ [[lists:nth(random:uniform(length(P)), P)]]);
+fragmentize(Parts, Len, Fragments, Nodes) when Len == 0 ->
+	Fragments.
 
-fragmentize(P, N, F) when N > 0 ->
-	add3(P, N, lists:nth(random:uniform(length(P)), P), F, 3);
+add3(Parts, Len, Value, Fragments, Index, Nodes) when Index == 0 ->
+    %Done adding 3 times, calling fragmentize to get the next Value to be distributed
+	fragmentize(Parts, Len-1, Fragments, Nodes-1); %return to fragmentize
 
-fragmentize(P, N, F) when N == 0 ->
-	F.
+add3(Parts, Len, Value, Fragments, Index, Nodes) when Index > 0 ->
+    %Distributes a Part among 3 random fragments
+    Frag = lists:nth(random:uniform(length(Fragments)), Fragments),
+    Temp= lists:delete(Frag, Fragments),
+    add3(Parts, Len, Value, [[Value | Frag]|Temp], Index-1, Nodes).
 
