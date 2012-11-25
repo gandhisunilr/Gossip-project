@@ -2,9 +2,11 @@
 -compile(export_all).
 
 upFound(Myvalue, Value, Fragment) ->
-    if Myvalue == {0, 0} ->
-        {K, V} = Value;
-        true -> {K, V} = Myvalue 
+    Mytuple = hd(Myvalue),
+    Tuple = hd(Value),
+    if Mytuple == {0, 0} ->
+        {K, V} = Tuple;
+        true -> {K, V} = Mytuple 
     end,
     case lists:keyfind(K, 1, Fragment) of
         false -> [[{K,V}], Fragment];
