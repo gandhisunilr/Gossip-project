@@ -10,12 +10,12 @@ getValue(I, List, Op, InputList) ->
         update -> 
             if
                 I == 1 -> [hd(InputList)];
-                true -> [{0, 0}]
+                true -> [{0,0}]
             end;
         median -> 
             if
                 I == 1 -> summarize(List,[],median);
-                true -> [0, 0]
+                true -> [{0, 0}]
             end;    
         X-> summarize(List, [], Op)
     end.
@@ -24,7 +24,7 @@ summarize([], L, Op) ->
     case Op of
         max -> [lists:max(L)];
         min -> [lists:min(L)];
-        median -> [lists:nth(round((length(L) / 2)), lists:sort(L)), round(length(L)/2)-1];
+        median -> [{lists:nth(round((length(L) / 2)), lists:sort(L)), round(length(L)/2)-1}];
         mean -> [erlang:length(L), lists:sum(L)]
     end;
     
