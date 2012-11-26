@@ -9,7 +9,7 @@ inside erl type
 
 1>c(gossip). #Ignore the warnings for now
 
-2>gossip:start(max, identity).
+2>gossip:start(max/min/mean/update/retrieve, identity/fragment, InputList = []/[{Index, Value)]).
 
-Change max into any function you wish to compute. {max, min, mean, update}
+
 
