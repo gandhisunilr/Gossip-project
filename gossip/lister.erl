@@ -16,7 +16,8 @@ getValue(I, List, Op, InputList) ->
             if
                 I == 1 -> summarize(List,[],median);
                 true -> [0, 0]
-            end;   
+            end;  
+        retrieve -> InputList;
         X-> summarize(List, [], Op)
     end.
 
@@ -36,6 +37,8 @@ split({X, Y}) -> Y.
 
 retriever(Myvalue, Pids, Pid) ->
     case lists:nth(length(Pids), Pids) == Pid of
-        true -> [hd(Myvalue)|[Pid]]; 
+        true ->
+            io:format("Node 1 Pid: ~p", [Pid]),
+            [hd(Myvalue)|[Pid]]; 
         false -> [{0,0}]
     end.
