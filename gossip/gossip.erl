@@ -47,7 +47,7 @@ initthread(I,Input,Fragment,Function,InputList) ->
         	true -> [0]
         end;
         fragment -> 
-        lister:getValue(I,Fragment, Function,InputList) 
+        lister:getValue(I,Fragment,Function,InputList) 
     end.
 
 calculate(Function,Myvalue,Value,Fragment) ->
@@ -56,7 +56,18 @@ case Function of
         min-> [[erlang:min(hd(Myvalue), hd(Value))],Fragment];
         mean->[[(hd(Myvalue) + hd(Value))/2],Fragment];
         meanfragments->[[(hd(Myvalue) + hd(Value))/2, (tl(Myvalue) + tl(Value))/(hd(Myvalue) + hd(Value))/2],Fragment];
-        update -> updateFound:upFound(Myvalue, Value,Fragment)
+        update -> updateFound:upFound(Myvalue, Value,Fragment, Function);
+        retrieve -> Result = updateFound:upFound(Myvalue, Value, Fragment, Function),
+        %    io:format("Result is ~p", [Result]),
+            Tail = tl(hd(Result)),
+            Head = hd(hd(Result)),
+            {_, Y} = Head,
+            if Tail /= [], Y /= 0  ->
+                hd(tl(hd(Result))) ! {retrieve, Head};
+             %   io:format("Result is ~p and ~p", [hd(Tail), Resut]);
+            true -> empty 
+            end,
+        Result    
     end.
 
 selectneighbours(TransitionMatrix, Pids, Pid) ->
@@ -75,8 +86,9 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
 	receive
 		%get the pids of all processes,
         {pid, Pidsmsg } ->
-        	io:format("I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
-        	threadnodes(TransitionMatrix,Pidsmsg,Myvalue,Fragment);
+        %	io:format("I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
+        	threadnodes(TransitionMatrix,Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment);
+        	%threadnodes(TransitionMatrix,Pidsmsg, Myvalue, Fragment);
         
         %Send Function	This function must be executed after every few minutes
         {send, Function} ->
@@ -87,13 +99,16 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
         %Recieve Function from Process Pid with his value
         {Function, Pid, Value } ->
         	Pid ! { returnmsg, Function, self(), Myvalue },
-        	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
-            threadnodes(TransitionMatrix,Pids, lists:nth(1,calculate( Function, Myvalue,Value,Fragment)),lists:nth(2,calculate( Function, Myvalue,Value,Fragment)));
+        	%printmsg(Function, return, [self(), Myvalue, Pid, Value]),
+            threadnodes(TransitionMatrix,Pids, lists:nth(1,calculate( Function, Myvalue,Value,Fragment)),lists:nth(2,calculate(Function, Myvalue,Value,Fragment)));
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
-            printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
+            %printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
             threadnodes(TransitionMatrix,Pids, lists:nth(1,calculate( Function, Myvalue,Value,Fragment)),lists:nth(2,calculate( Function, Myvalue,Value,Fragment)));
+
+        {retrieve, Result} ->
+            io:format("Node 1 retrieved ~p ",[Result]);
             
         {tick, Function}->
        		self() ! {send,Function},
