@@ -13,3 +13,5 @@ inside erl type
 
 Change max into any function you wish to compute. {max, min, mean, update}
 
+Format of variables :
+1)Fragment : [{},{}]
