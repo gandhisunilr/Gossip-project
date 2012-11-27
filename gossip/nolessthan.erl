@@ -1,8 +1,7 @@
--module(something).
+-module(nolessthan).
 -compile(export_all).
--import(matrix).
 
-something(Value,Fragment) ->
+nolessthan(Value,Fragment) ->
     SortedList = lists:keysort(2,Fragment),
     noofelements(Value, SortedList,0).
 
