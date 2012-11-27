@@ -1,8 +1,9 @@
 -module(updateFound).
 -compile(export_all).
 
+%Computation for Update and Retrieve Functions
 upFound(Myvalue, Value, Fragment, Function) ->
-    Mytuple = hd(Myvalue),
+    Mytuple = hd(Myvalue), %Myvalue = []
     Tuple = hd(Value),
     if Mytuple == {0, 0} ->
         {K, V} = Tuple;
@@ -19,7 +20,8 @@ upFound(Myvalue, Value, Fragment, Function) ->
                 Temp
             end;    
         retrieve ->
-            if tl(Myvalue) /= [] ->
+            io:format("Myvalue ~p, Value ~p", [Myvalue, Value]),
+            if tl(Myvalue) /= [] -> %Checking
                 Pid = tl(Myvalue);
             true -> Pid = tl(Value)
             end,
