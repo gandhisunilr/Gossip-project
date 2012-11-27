@@ -15,7 +15,7 @@ start(Function,Input,InputList)->
 gossip(Function,TransitionMatrix,Input,InputList) ->
     FragList = genfrags(length(TransitionMatrix)),
 	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input,Function, FragList,InputList),
-	sendpids(length(Pids),Pids),
+	sendpids(length(Pids),Pids,Function),
 	starttimer(Pids,Function).
 	
 
@@ -27,10 +27,13 @@ starttimer(Pids,Function) ->
 		true -> true
 	end.
 
-sendpids(0,Pids) -> 1;
-sendpids(I,Pids) ->
-	lists:nth(I,Pids) ! {pid, Pids},
-	sendpids(I-1,Pids).
+sendpids(0,Pids,Function) -> 1;
+sendpids(I,Pids,Function) ->
+    case Function of 
+        retrieve -> lists:nth(I,Pids) ! {pid, Pids, retrieve};
+        X -> lists:nth(I,Pids) ! {pid, Pids}
+    end,
+	sendpids(I-1,Pids,Function).
 
 create(0,Pids,TransitionMatrix,Input,Function, FragList,InputList) -> Pids;
 create(I,Pids,TransitionMatrix,Input,Function, FragList,InputList)->
@@ -87,8 +90,12 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
 		%get the pids of all processes,
         {pid, Pidsmsg } ->
         %	io:format("I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
-        	threadnodes(TransitionMatrix,Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment);
-        	%threadnodes(TransitionMatrix,Pidsmsg, Myvalue, Fragment);
+        % 	threadnodes(TransitionMatrix,Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment);
+        	threadnodes(TransitionMatrix,Pidsmsg, Myvalue, Fragment);
+        
+         {pid, Pidsmsg, retrieve} ->
+        	io:format("Retrieve: I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
+         	threadnodes(TransitionMatrix,Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment);
         
         %Send Function	This function must be executed after every few minutes
         {send, Function} ->
@@ -99,13 +106,15 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
         %Recieve Function from Process Pid with his value
         {Function, Pid, Value } ->
         	Pid ! { returnmsg, Function, self(), Myvalue },
-        	%printmsg(Function, return, [self(), Myvalue, Pid, Value]),
-            threadnodes(TransitionMatrix,Pids, lists:nth(1,calculate( Function, Myvalue,Value,Fragment)),lists:nth(2,calculate(Function, Myvalue,Value,Fragment)));
+        	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
+            ValueList = calculate(Function, Myvalue, Value, Fragment,Pid),
+            threadnodes(TransitionMatrix,Pids, lists:nth(1,ValueList),lists:nth(2,ValueList));
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
-            %printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
-            threadnodes(TransitionMatrix,Pids, lists:nth(1,calculate( Function, Myvalue,Value,Fragment)),lists:nth(2,calculate( Function, Myvalue,Value,Fragment)));
+            printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
+            ValueList = calculate(Function, Myvalue, Value, Fragment,Pid),
+            threadnodes(TransitionMatrix,Pids, lists:nth(1,ValueList),lists:nth(2,ValueList));
 
         {retrieve, Result} ->
             io:format("Node 1 retrieved ~p ",[Result]);
