@@ -3,6 +3,7 @@
 -import(lister).
 -import(updateFound).
 -import(fragreader, [genfrags/1]).
+-import (nolessthan,[nolessthan/2]).
 -compile(export_all).
 
 start(Function,Input,InputList)->
@@ -35,8 +36,20 @@ sendpids(I,Pids) ->
 create(0,Pids,TransitionMatrix,Input,Function, FragList,InputList) -> Pids;
 create(I,Pids,TransitionMatrix,Input,Function, FragList,InputList)->
     Fragment = lists:nth(I, FragList),
-	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I,Input,Fragment,Function,InputList), Fragment) end),
+	Myvalue = initthread(I,Input,Fragment,Function,InputList),
+    Memory = getmemory(I,Function),
+    Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],Myvalue, Fragment) end),
 	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input,Function, FragList,InputList).
+
+getmemory(I,Function) ->
+    case Function of 
+        median -> 
+            if
+                I ==1 ->[1];
+                true -> [0]
+            end;
+        X -> []
+    end.
 
 initthread(I,Input,Fragment,Function,InputList) -> 
 	case Input of 
@@ -50,13 +63,31 @@ initthread(I,Input,Fragment,Function,InputList) ->
         lister:getValue(I,Fragment, Function,InputList) 
     end.
 
+%Return [Median, lessthan],Fragment,[Gotmed]
+computeNewParametersMedian(Myvalue,Value,Fragment) ->
+    if
+        (element(1,hd(Myvalue))==0) and (element(1,hd(Value)) ==0) ->
+             [Value,Fragment];
+        %It dosen't execute above statement means that myvalue and value is not zero
+        %if it gets value and gotmed =0 then MyValue 
+        (element(1,hd(Myvalue)) /=0) and (element(1,hd(Value)) ==0)->  
+            [Myvalue,Fragment];
+        (element(1,hd(Myvalue)) ==0) and (element(1,hd(Value)) /=0) ->  
+            Med = element(1,hd(Value)),
+            Nolessthanelem =nolessthan(Med,Fragment),
+            [[{Med,Nolessthanelem}],Fragment];
+        true ->
+            [[{element(1,hd(Value)),(element(2,hd(Myvalue))+element(2, hd(Value)))/2}],Fragment]
+     end.
+
 calculate(Function,Myvalue,Value,Fragment) ->
 case Function of 
         max-> [[erlang:max(hd(Myvalue), hd(Value))],Fragment];
         min-> [[erlang:min(hd(Myvalue), hd(Value))],Fragment];
         mean->[[(hd(Myvalue) + hd(Value))/2],Fragment];
+        median -> computeNewParametersMedian(Myvalue,Value,Fragment);
         meanfragments->[[(hd(Myvalue) + hd(Value))/2, (tl(Myvalue) + tl(Value))/(hd(Myvalue) + hd(Value))/2],Fragment];
-        update -> updateFound:upFound(Myvalue, Value,Fragment)
+        update -> updateFound:upFound(Myvalue, Value,Fragment) 
     end.
 
 selectneighbours(TransitionMatrix, Pids, Pid) ->
@@ -70,12 +101,11 @@ end.
 	
 
 threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
-    %TODO: Do we need Myvalue as it can be calculated from Fragment?
 	%getneighbours()
 	receive
 		%get the pids of all processes,
         {pid, Pidsmsg } ->
-        	io:format("I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
+        	io:format("I got pids ~p ~n",[self()]),
         	threadnodes(TransitionMatrix,Pidsmsg,Myvalue,Fragment);
         
         %Send Function	This function must be executed after every few minutes
@@ -88,12 +118,14 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
         {Function, Pid, Value } ->
         	Pid ! { returnmsg, Function, self(), Myvalue },
         	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
-            threadnodes(TransitionMatrix,Pids, lists:nth(1,calculate( Function, Myvalue,Value,Fragment)),lists:nth(2,calculate( Function, Myvalue,Value,Fragment)));
+            NewParameters = calculate( Function, Myvalue,Value,Fragment),
+            threadnodes(TransitionMatrix,Pids,lists:nth(1,NewParameters) ,lists:nth(2,NewParameters));
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
             printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
-            threadnodes(TransitionMatrix,Pids, lists:nth(1,calculate( Function, Myvalue,Value,Fragment)),lists:nth(2,calculate( Function, Myvalue,Value,Fragment)));
+            NewParameters = calculate( Function, Myvalue,Value,Fragment),
+            threadnodes(TransitionMatrix,Pids, lists:nth(1,NewParameters),lists:nth(2,NewParameters));
             
         {tick, Function}->
        		self() ! {send,Function},
