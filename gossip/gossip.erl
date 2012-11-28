@@ -7,7 +7,7 @@
 
 start(Function,Input,InputList)->
 	%P = generate_topology()
-	P=matrix:new(10,10,fun (Column, Row, Columns, _) ->                      
+	P=matrix:new(5,5,fun (Column, Row, Columns, _) ->                      
 	Columns * (Row - 1) + Column
 	end),
 	gossip(Function,P,Input,InputList).
@@ -53,7 +53,7 @@ initthread(I,Input,Fragment,Function,InputList) ->
         lister:getValue(I,Fragment,Function,InputList) 
     end.
 
-calculate(Function,Myvalue,Value,Fragment,Pid) ->
+calculate(Function,Myvalue,Value,Fragment,Pid, Parent) ->
 case Function of 
         max-> [[erlang:max(hd(Myvalue), hd(Value))],Fragment,0];
         min-> [[erlang:min(hd(Myvalue), hd(Value))],Fragment,0];
@@ -66,14 +66,19 @@ case Function of
             Mycheck = element(1, hd(Myvalue)),
             Check = element(1, hd(Value)),
             if 
-                Check == 1, Mycheck == 0 -> 
+                Check /= 0, Mycheck == 0 -> 
                     if 
-                        element(2, Head) /= 0  -> Pid ! {retrieve, Result},
-                        Result ++ Pid;
-                        true -> Result ++ Pid
-                    end;
-                true -> Result ++ 0
-           end         
+                        element(2, Head) /= 0  ->
+                        io:format("Parent of found node ~p~n", [Parent]), 
+                        io:format("Sending retrieve to ~p~n", [Pid]), 
+                        Pid ! {retrieve, Result};
+                        true -> nothing
+                    end,
+                NewParent = Pid;
+                true -> nothing,
+           NewParent = Parent     
+           end,
+        Result ++ [NewParent]
         end.                 
 
 
@@ -122,19 +127,19 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Parent) ->
         {Function, Pid, Value } ->
         	Pid ! { returnmsg, Function, self(), Myvalue },
         %	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
-            ValueList = calculate(Function, Myvalue, Value, Fragment,Pid),
-            io:format("Result in Recieve ~p", [ValueList]),
+            ValueList = calculate(Function, Myvalue, Value, Fragment, Pid, Parent),
+        %    io:format("Result in Recieve ~p", [ValueList]),
             threadnodes(TransitionMatrix,Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),lists:nth(3, ValueList));
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
          %   printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
-            ValueList = calculate(Function, Myvalue, Value, Fragment,Pid),
-            io:format("Result in Returnmsg~p", [ValueList]),
+            ValueList = calculate(Function, Myvalue, Value, Fragment, Pid, Parent),
+         %   io:format("Result in Returnmsg~p", [ValueList]),
             threadnodes(TransitionMatrix,Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),lists:nth(3, ValueList));
 
         {retrieve, Result} ->
-            io:format("Node 1 retrieved ~p ",[Result]);
+            io:format("Node 1 retrieved ~p ",[hd(hd(Result))]);
             
         {tick, Function}->
        		self() ! {send,Function},
