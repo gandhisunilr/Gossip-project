@@ -24,7 +24,8 @@ summarize([], L, Op) ->
     case Op of
         max -> [lists:max(L)];
         min -> [lists:min(L)];
-        median -> [{lists:nth(round((length(L) / 2)), lists:sort(L)), round(length(L)/2)-1}];
+        median -> Median = lists:nth(round((length(L) / 2)), lists:sort(L)),
+            [{Median, round(length(L)/2)-1}];
         mean -> [erlang:length(L), lists:sum(L)]
     end;
     
