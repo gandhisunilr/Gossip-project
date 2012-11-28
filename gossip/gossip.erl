@@ -38,7 +38,7 @@ sendpids(I,Pids,Function) ->
 create(0,Pids,TransitionMatrix,Input,Function, FragList,InputList) -> Pids;
 create(I,Pids,TransitionMatrix,Input,Function, FragList,InputList)->
     Fragment = lists:nth(I, FragList),
-	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I,Input,Fragment,Function,InputList), Fragment) end),
+	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I,Input,Fragment,Function,InputList), Fragment, 0) end),
 	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input,Function, FragList,InputList).
 
 initthread(I,Input,Fragment,Function,InputList) -> 
@@ -53,25 +53,40 @@ initthread(I,Input,Fragment,Function,InputList) ->
         lister:getValue(I,Fragment,Function,InputList) 
     end.
 
-calculate(Function,Myvalue,Value,Fragment) ->
+calculate(Function,Myvalue,Value,Fragment,Pid) ->
 case Function of 
-        max-> [[erlang:max(hd(Myvalue), hd(Value))],Fragment];
-        min-> [[erlang:min(hd(Myvalue), hd(Value))],Fragment];
-        mean->[[(hd(Myvalue) + hd(Value))/2],Fragment];
-        meanfragments->[[(hd(Myvalue) + hd(Value))/2, (tl(Myvalue) + tl(Value))/(hd(Myvalue) + hd(Value))/2],Fragment];
+        max-> [[erlang:max(hd(Myvalue), hd(Value))],Fragment,0];
+        min-> [[erlang:min(hd(Myvalue), hd(Value))],Fragment,0];
+        mean->[[(hd(Myvalue) + hd(Value))/2],Fragment,0];
+        meanfragments->[[(hd(Myvalue) + hd(Value))/2, (tl(Myvalue) + tl(Value))/(hd(Myvalue) + hd(Value))/2],Fragment,0];
         update -> updateFound:upFound(Myvalue, Value,Fragment, Function);
         retrieve -> Result = updateFound:upFound(Myvalue, Value, Fragment, Function),
         %    io:format("Result is ~p", [Result]),
-            Tail = tl(hd(Result)),
             Head = hd(hd(Result)),
-            {_, Y} = Head,
-            if Tail /= [], Y /= 0  ->
-                hd(tl(hd(Result))) ! {retrieve, Head};
+            Mycheck = element(1, hd(Myvalue)),
+            Check = element(1, hd(Value)),
+            if 
+                Check == 1, Mycheck == 0 -> 
+                    if 
+                        element(2, Head) /= 0  -> Pid ! {retrieve, Result},
+                        Result ++ Pid;
+                        true -> Result ++ Pid
+                    end;
+                true -> Result ++ 0
+           end         
+        end.                 
+
+
+%            Tail = tl(hd(Result)),
+%            Head = hd(hd(Result)),
+%            {_, Y} = Head,
+%            if Tail /= [], Y /= 0  ->
+%                hd(tl(hd(Result))) ! {retrieve, Head};
              %   io:format("Result is ~p and ~p", [hd(Tail), Resut]);
-            true -> empty 
-            end,
-        Result    
-    end.
+%            true -> empty 
+%            end,
+%        Result    
+%    end.
 
 selectneighbours(TransitionMatrix, Pids, Pid) ->
 	lists:nth(random:uniform(length(TransitionMatrix)), Pids).
@@ -83,7 +98,7 @@ case Type of
 end.
 	
 
-threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
+threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Parent) ->
     %TODO: Do we need Myvalue as it can be calculated from Fragment?
 	%getneighbours()
 	receive
@@ -91,30 +106,32 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
         {pid, Pidsmsg } ->
         %	io:format("I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
         % 	threadnodes(TransitionMatrix,Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment);
-        	threadnodes(TransitionMatrix,Pidsmsg, Myvalue, Fragment);
+        	threadnodes(TransitionMatrix,Pidsmsg, Myvalue, Fragment,Parent);
         
          {pid, Pidsmsg, retrieve} ->
-        	io:format("Retrieve: I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
-         	threadnodes(TransitionMatrix,Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment);
+       % 	io:format("Retrieve: I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
+         	threadnodes(TransitionMatrix,Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment, Parent);
         
         %Send Function	This function must be executed after every few minutes
         {send, Function} ->
         	Pid=selectneighbours(TransitionMatrix, Pids, self()),
         	Pid ! {Function, self(), Myvalue},
-        	threadnodes(TransitionMatrix,Pids,Myvalue,Fragment);
+        	threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Parent);
 
         %Recieve Function from Process Pid with his value
         {Function, Pid, Value } ->
         	Pid ! { returnmsg, Function, self(), Myvalue },
-        	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
+        %	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
             ValueList = calculate(Function, Myvalue, Value, Fragment,Pid),
-            threadnodes(TransitionMatrix,Pids, lists:nth(1,ValueList),lists:nth(2,ValueList));
+            io:format("Result in Recieve ~p", [ValueList]),
+            threadnodes(TransitionMatrix,Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),lists:nth(3, ValueList));
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
-            printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
+         %   printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
             ValueList = calculate(Function, Myvalue, Value, Fragment,Pid),
-            threadnodes(TransitionMatrix,Pids, lists:nth(1,ValueList),lists:nth(2,ValueList));
+            io:format("Result in Returnmsg~p", [ValueList]),
+            threadnodes(TransitionMatrix,Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),lists:nth(3, ValueList));
 
         {retrieve, Result} ->
             io:format("Node 1 retrieved ~p ",[Result]);
@@ -122,5 +139,5 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
         {tick, Function}->
        		self() ! {send,Function},
             timer:send_after(1000, {tick, Function}),
-            threadnodes(TransitionMatrix,Pids,Myvalue,Fragment)
+            threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Parent)
     end.
