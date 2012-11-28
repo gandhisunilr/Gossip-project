@@ -7,7 +7,7 @@
 
 start(Function,Input,InputList)->
 	%P = generate_topology()
-	P=matrix:new(5,5,fun (Column, Row, Columns, _) ->                      
+	P=matrix:new(100,100,fun (Column, Row, Columns, _) ->                      
 	Columns * (Row - 1) + Column
 	end),
 	gossip(Function,P,Input,InputList).
@@ -139,8 +139,11 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Parent) ->
             threadnodes(TransitionMatrix,Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),lists:nth(3, ValueList));
 
         {retrieve, Result} ->
-            io:format("Node 1 retrieved ~p ",[hd(hd(Result))]);
-            
+            io:format("~p retrieve ~p ",[self(), hd(hd(Result))]),
+            if self() /= tl(hd(Result)), Parent /= 0 -> Parent ! {retrieve, Result};
+            true -> io:format("###Node 1 ~p Parent ~p retrieve ~p ~n###",[self(), Parent, hd(hd(Result))])
+            end;
+
         {tick, Function}->
        		self() ! {send,Function},
             timer:send_after(1000, {tick, Function}),
