@@ -38,7 +38,7 @@ create(I,Pids,TransitionMatrix,Input,Function, FragList,InputList)->
     Fragment = lists:nth(I, FragList),
 	Myvalue = initthread(I,Input,Fragment,Function,InputList),
     Memory = getmemory(I,Function),
-    Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],Myvalue, Fragment) end),
+    Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],Myvalue, Fragment,length(TransitionMatrix)) end),
 	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input,Function, FragList,InputList).
 
 getmemory(I,Function) ->
@@ -68,8 +68,6 @@ computeNewParametersMedian(Myvalue,Value,Fragment) ->
     if
         (element(1,hd(Myvalue))==0) and (element(1,hd(Value)) ==0) ->
              [Value,Fragment];
-        %It dosen't execute above statement means that myvalue and value is not zero
-        %if it gets value and gotmed =0 then MyValue 
         (element(1,hd(Myvalue)) /=0) and (element(1,hd(Value)) ==0)->  
             [Myvalue,Fragment];
         (element(1,hd(Myvalue)) ==0) and (element(1,hd(Value)) /=0) ->  
@@ -100,35 +98,45 @@ case Type of
 end.
 	
 
-threadnodes(TransitionMatrix,Pids,Myvalue,Fragment) ->
+threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Memory) ->
 	%getneighbours()
 	receive
 		%get the pids of all processes,
         {pid, Pidsmsg } ->
         	io:format("I got pids ~p ~n",[self()]),
-        	threadnodes(TransitionMatrix,Pidsmsg,Myvalue,Fragment);
+        	threadnodes(TransitionMatrix,Pidsmsg,Myvalue,Fragment,length(TransitionMatrix));
         
         %Send Function	This function must be executed after every few minutes
         {send, Function} ->
         	Pid=selectneighbours(TransitionMatrix, Pids, self()),
         	Pid ! {Function, self(), Myvalue},
-        	threadnodes(TransitionMatrix,Pids,Myvalue,Fragment);
+        	threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Memory-1);
+
+        {convergence, Function, Myvalue} ->
+            io:format("I am ~p and have converged with Value ~p~n",[self(),element(2,hd(Myvalue)) ]);
 
         %Recieve Function from Process Pid with his value
         {Function, Pid, Value } ->
         	Pid ! { returnmsg, Function, self(), Myvalue },
         	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
             NewParameters = calculate( Function, Myvalue,Value,Fragment),
-            threadnodes(TransitionMatrix,Pids,lists:nth(1,NewParameters) ,lists:nth(2,NewParameters));
+            threadnodes(TransitionMatrix,Pids,lists:nth(1,NewParameters) ,lists:nth(2,NewParameters),Memory);
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
             printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
             NewParameters = calculate( Function, Myvalue,Value,Fragment),
-            threadnodes(TransitionMatrix,Pids, lists:nth(1,NewParameters),lists:nth(2,NewParameters));
-            
+            threadnodes(TransitionMatrix,Pids, lists:nth(1,NewParameters),lists:nth(2,NewParameters),Memory);
+        
         {tick, Function}->
-       		self() ! {send,Function},
-            timer:send_after(1000, {tick, Function}),
-            threadnodes(TransitionMatrix,Pids,Myvalue,Fragment)
+            if
+                Memory /= 0 ->
+                    self() ! {send,Function},
+                    timer:send_after(1000, {tick, Function}),
+                    threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Memory);
+                true -> 
+                    self() ! {convergence, Function, Myvalue},
+                    threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Memory)
+            end
+            
     end.
