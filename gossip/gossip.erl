@@ -37,19 +37,8 @@ create(0,Pids,TransitionMatrix,Input,Function, FragList,InputList) -> Pids;
 create(I,Pids,TransitionMatrix,Input,Function, FragList,InputList)->
     Fragment = lists:nth(I, FragList),
 	Myvalue = initthread(I,Input,Fragment,Function,InputList),
-    Memory = getmemory(I,Function),
-    Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],Myvalue, Fragment,length(TransitionMatrix)) end),
+    Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],Myvalue, Fragment,length(TransitionMatrix),{0,length(Fragment)},999) end),
 	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input,Function, FragList,InputList).
-
-getmemory(I,Function) ->
-    case Function of 
-        median -> 
-            if
-                I ==1 ->[1];
-                true -> [0]
-            end;
-        X -> []
-    end.
 
 initthread(I,Input,Fragment,Function,InputList) -> 
 	case Input of 
@@ -98,45 +87,62 @@ case Type of
 end.
 	
 
-threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Memory) ->
+threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,TotalElements) ->
 	%getneighbours()
 	receive
 		%get the pids of all processes,
         {pid, Pidsmsg } ->
         	io:format("I got pids ~p ~n",[self()]),
-        	threadnodes(TransitionMatrix,Pidsmsg,Myvalue,Fragment,length(TransitionMatrix));
+        	threadnodes(TransitionMatrix,Pidsmsg,Myvalue,Fragment,length(TransitionMatrix),Minmaxelement,TotalElements);
         
         %Send Function	This function must be executed after every few minutes
         {send, Function} ->
         	Pid=selectneighbours(TransitionMatrix, Pids, self()),
         	Pid ! {Function, self(), Myvalue},
-        	threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Memory-1);
+        	threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations-1,Minmaxelement,TotalElements);
 
-        {convergence, Function, Myvalue} ->
-            io:format("I am ~p and have converged with Value ~p~n",[self(),element(2,hd(Myvalue)) ]);
+        {convergence, Function} ->
+            N = length(TransitionMatrix),
+            %lists:nth(N,Pids): This is first node
+            %reset all values    
+            ElemLessThanFrag = nolessthan(element(1,hd(Myvalue)),Fragment),
+            %Divide by 3 for replication factor
+            ElemLessThan = round(element(2,hd(Myvalue))*N/3),
+            if
+                (ElemLessThan > (round(TotalElements/2)-5)) and (ElemLessThan < (round(TotalElements/2)+5)) ->
+                    io:format("Median is somewhere around ~p ~n",[element(1,hd(Myvalue))]);
+                ElemLessThan < round(TotalElements/2) ->
+                    NewMinmaxelement = {ElemLessThan,element(2,Minmaxelement)},
+                    io:format("I am ~p Converged: ~p New fragment: ~p ~n",[self(),(element(2,hd(Myvalue))*N)/3,NewMinmaxelement ]);
+                ElemLessThan > round(TotalElements/2) ->
+                    NewMinmaxelement = {element(2,Minmaxelement),ElemLessThan},
+                    io:format("I am ~p Converged: ~p New fragment: ~p ~n",[self(),(element(2,hd(Myvalue))*N)/3,NewMinmaxelement ])
+            end;
+            
 
         %Recieve Function from Process Pid with his value
         {Function, Pid, Value } ->
         	Pid ! { returnmsg, Function, self(), Myvalue },
         	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
             NewParameters = calculate( Function, Myvalue,Value,Fragment),
-            threadnodes(TransitionMatrix,Pids,lists:nth(1,NewParameters) ,lists:nth(2,NewParameters),Memory);
+            %TODO: Fix this function and returnmsg pass Minmaxelement to calculate (Question : will it return it?)
+            threadnodes(TransitionMatrix,Pids,lists:nth(1,NewParameters) ,lists:nth(2,NewParameters),Iterations,Minmaxelement,TotalElements);
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
             printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
             NewParameters = calculate( Function, Myvalue,Value,Fragment),
-            threadnodes(TransitionMatrix,Pids, lists:nth(1,NewParameters),lists:nth(2,NewParameters),Memory);
+            threadnodes(TransitionMatrix,Pids, lists:nth(1,NewParameters),lists:nth(2,NewParameters),Iterations,Minmaxelement,TotalElements);
         
         {tick, Function}->
             if
-                Memory /= 0 ->
+                Iterations /= 0 ->
                     self() ! {send,Function},
                     timer:send_after(1000, {tick, Function}),
-                    threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Memory);
+                    threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,TotalElements);
                 true -> 
-                    self() ! {convergence, Function, Myvalue},
-                    threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Memory)
+                    self() ! {convergence, Function},
+                    threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,TotalElements)
             end
             
     end.
