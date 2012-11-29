@@ -31,6 +31,11 @@ add3(Parts, Len, Value, Fragments, Index, Nodes) when Index == 0 ->
 add3(Parts, Len, Value, Fragments, Index, Nodes) when Index > 0 ->
     %Distributes a Part among 3 random fragments
     Frag = lists:nth(random:uniform(length(Fragments)), Fragments),
-    Temp= lists:delete(Frag, Fragments),
-    add3(Parts, Len, Value, [[Value | Frag]|Temp], Index-1, Nodes).
+    {K, V} = Value,
+    Found = lists:keyfind(K, 1, Frag),
+    if 
+        Found == false -> Temp= lists:delete(Frag, Fragments),
+        add3(Parts, Len, Value, [[Value | Frag]|Temp], Index-1, Nodes);
+        true -> add3(Parts, Len, Value, Fragments, Index, Nodes)
+    end.
 
