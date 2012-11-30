@@ -161,12 +161,12 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,Tota
                                     Pid=selectneighbours(TransitionMatrix, Pids, self()),
                                     NewCurrentPid = -1,
                                     NewMyvalue = [{0,0}],
-                                    Pid ! {yourturn, self()};
+                                    Pid ! {yourturn, self(),Function};
                                 true ->
                                     %Expression Below gives smaller list which can contain median
                                     %sort list and then split using X and split using Y and then find its median This becomes new value for
                                     %first node
-                                    MedianList = element(1,lists:split(Y-X-1,element(2,lists:split(X,lists:keysort(2,Fragment))))),
+                                    MedianList = element(1,lists:split(Y-X-1,element(2,lists:split(X+1,lists:keysort(2,Fragment))))),
                                     
                                     NewCurrentPid = CurrentPid,
                                     Med = lists:nth(round((length(MedianList) / 2)), MedianList),
