@@ -25,6 +25,7 @@ summarize([], L, Op) ->
         max -> [lists:max(L)];
         min -> [lists:min(L)];
         median -> [lists:nth(round((length(L) / 2)), lists:sort(L)), round(length(L)/2)-1];
+        meanfragments -> [{erlang:length(L), lists:sum(L)}];
         mean -> [erlang:length(L), lists:sum(L)]
     end;
     
