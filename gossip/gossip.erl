@@ -112,28 +112,28 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,Tota
         	Pid ! {Function, self(), Myvalue},
         	threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations-1,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor);
 
-        {yourturn, SenderPid, Function} ->
+        {yourturn, SenderPid, Function,SenderValue} ->
             io:format("~p I am your New Bully~n",[self()]),
             if
                 CurrentPid == -1 ->
-                    SenderPid ! {sorry,Function},
-                    NewCurrentPid = CurrentPid;
+                    Pid=selectneighbours(TransitionMatrix, Pids, self()),
+                    NewCurrentPid = -1,
+                    NewMyvalue = [{0,0}],
+                    Pid ! {yourturn, self(),Function,SenderValue};
                 CurrentPid == 0  ->
                     io:format("~p I am your New Bully~n",[self()]),
                     NewCurrentPid = 1,
+                    NewMyvalue = SenderValue,
                     self() ! {convergence, Function}
             end,
-            threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations-1,Minmaxelement,TotalElements,NewCurrentPid,ReplicationFactor);            
-
-        {sorry,Function} -> 
-            self() ! {convergence, Function};
+            threadnodes(TransitionMatrix,Pids,NewMyvalue,Fragment,Iterations-1,Minmaxelement,TotalElements,NewCurrentPid,ReplicationFactor);            
 
         {convergence, Function} ->
             N = length(TransitionMatrix),
             %reset all values    
-            ElemLessThanFrag = nolessthan(element(1,hd(Myvalue)),Fragment),
+            ElemLessThanFrag = nolessthan(element(1,hd(Myvalue)),Fragment),%0
             %Divide by replication factor
-            ElemLessThan = round((element(2,hd(Myvalue))*N)/ReplicationFactor),
+            ElemLessThan = round((element(2,hd(Myvalue))*N)/ReplicationFactor),%0
             if
                 (ElemLessThan > (round(TotalElements/2)-5)) and (ElemLessThan < (round(TotalElements/2)+5)) ->
                     %Stop here
@@ -161,13 +161,12 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,Tota
                                     Pid=selectneighbours(TransitionMatrix, Pids, self()),
                                     NewCurrentPid = -1,
                                     NewMyvalue = [{0,0}],
-                                    Pid ! {yourturn, self(),Function};
+                                    Pid ! {yourturn, self(),Function,Myvalue};
                                 true ->
                                     %Expression Below gives smaller list which can contain median
                                     %sort list and then split using X and split using Y and then find its median This becomes new value for
                                     %first node
                                     MedianList = element(1,lists:split(Y-X-1,element(2,lists:split(X+1,lists:keysort(2,Fragment))))),
-                                    
                                     NewCurrentPid = CurrentPid,
                                     Med = lists:nth(round((length(MedianList) / 2)), MedianList),
                                     NewMyvalue = [{element(2,Med),nolessthan(element(2,Med),Fragment)}],
