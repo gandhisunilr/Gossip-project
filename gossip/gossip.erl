@@ -37,7 +37,8 @@ create(0,Pids,TransitionMatrix,Input,Function, FragList,InputList) -> Pids;
 create(I,Pids,TransitionMatrix,Input,Function, FragList,InputList)->
     Fragment = lists:nth(I, FragList),
 	Myvalue = initthread(I,Input,Fragment,Function,InputList),
-    Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],Myvalue, Fragment,length(TransitionMatrix),{0,length(Fragment)},999,getcurrentpid(I)) end),
+    Iterations = length(TransitionMatrix) * length(TransitionMatrix),
+    Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],Myvalue, Fragment,Iterations,{0,length(Fragment)},999,getcurrentpid(I)) end),
 	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input,Function, FragList,InputList).
 
 getcurrentpid(I)->
@@ -100,8 +101,9 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,Tota
 	receive
 		%get the pids of all processes,
         {pid, Pidsmsg } ->
-        	io:format("I got pids ~p ~n",[self()]),
-        	threadnodes(TransitionMatrix,Pidsmsg,Myvalue,Fragment,length(TransitionMatrix),Minmaxelement,TotalElements,CurrentPid);
+        	%io:format("I got pids ~p ~n",[self()]),
+            NewIterations = length(TransitionMatrix) * length(TransitionMatrix),
+        	threadnodes(TransitionMatrix,Pidsmsg,Myvalue,Fragment,NewIterations,Minmaxelement,TotalElements,CurrentPid);
         
         %Send Function	This function must be executed after every few minutes
         {send, Function} ->
@@ -110,11 +112,13 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,Tota
         	threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations-1,Minmaxelement,TotalElements,CurrentPid);
 
         {yourturn, SenderPid, Function} ->
+            io:format("~p I am your New Bully~n",[self()]),
             if
                 CurrentPid == -1 ->
                     SenderPid ! {sorry,Function},
                     NewCurrentPid = CurrentPid;
                 CurrentPid == 0  ->
+                    io:format("~p I am your New Bully~n",[self()]),
                     NewCurrentPid = 1,
                     self() ! {convergence, Function}
             end,
@@ -132,7 +136,7 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,Tota
             if
                 (ElemLessThan > (round(TotalElements/2)-5)) and (ElemLessThan < (round(TotalElements/2)+5)) ->
                     %Stop here
-                    io:format("Median is somewhere around ~p ~n",[element(1,hd(Myvalue))]),
+                    io:format("Median is somewhere around ~p ~n",[element(1,hd(Myvalue))]);
                 true ->
                     if
                         ElemLessThan < round(TotalElements/2) ->
@@ -144,38 +148,40 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,Tota
                     end,
                     X = element(1,NewMinmaxelement),
                     Y = element(2,NewMinmaxelement),
-                    %Expression Below gives smaller list which can contain median
-                    %sort list and then split using X and split using Y and then find its median This becomes new value for
-                    %first node
-                    MedianList = element(1,lists:split(Y-X,element(2,lists:split(X,lists:keysort(2,Fragment))))),
                     if
                         CurrentPid ==1 ->
                             %it is first node
                             if
-                                length(MedianList)==0->
+                                (Y-X) < 2 ->
                                     %select Neighbour at random and send yourturn message to it
                                     %Here I am selecting a node randomly, But this will not work in any topology
                                     %Here for Complete graph it will work as all nodes are connected to every other node
                                     %For others we can keep track of children and then do it.
                                     Pid=selectneighbours(TransitionMatrix, Pids, self()),
                                     NewCurrentPid = -1,
-                                    NewMyvalue = {0,0},
+                                    NewMyvalue = [{0,0}],
                                     Pid ! {yourturn, self()};
                                 true ->
+                                    %Expression Below gives smaller list which can contain median
+                                    %sort list and then split using X and split using Y and then find its median This becomes new value for
+                                    %first node
+                                    MedianList = element(1,lists:split(Y-X-1,element(2,lists:split(X,lists:keysort(2,Fragment))))),
+                                    
                                     NewCurrentPid = CurrentPid,
                                     Med = lists:nth(round((length(MedianList) / 2)), MedianList),
-                                    NewMyvalue = [{Med,nolessthan(Med,Fragment)}]
+                                    NewMyvalue = [{element(2,Med),nolessthan(element(2,Med),Fragment)}],
+                                    io:format("~p New Gossip Value ~p ~n",[self(),hd(NewMyvalue)])
                             end;
-                    true ->
-                        %Not First Node
-                        NewMyvalue = [{0,0}],
-                        NewCurrentPid = CurrentPid
+                        true ->
+                            %Not First Node
+                            NewMyvalue = [{0,0}],
+                            NewCurrentPid = CurrentPid
                     end,
-                    io:format("I am ~p MynewValue ~p New Minmaxelement: ~p ~n",[self(),hd(NewMyvalue),NewMinmaxelement ]),
-                    threadnodes(TransitionMatrix,Pids,NewMyvalue,Fragment,length(TransitionMatrix),NewMinmaxelement,TotalElements,NewCurrentPid);
-            end.
+                    io:format("~p Value ~p less than ~p New Minmaxelement: ~p ~n",[self(),element(1,hd(Myvalue)),(element(2,hd(Myvalue))*N)/3,NewMinmaxelement ]),
+                    NewIterations = length(TransitionMatrix)*length(TransitionMatrix),
+                    threadnodes(TransitionMatrix,Pids,NewMyvalue,Fragment,NewIterations,NewMinmaxelement,TotalElements,NewCurrentPid)
+            end;
             
-
         %Recieve Function from Process Pid with his value
         {Function, Pid, Value } ->
         	Pid ! { returnmsg, Function, self(), Myvalue },
@@ -191,14 +197,17 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,Tota
             threadnodes(TransitionMatrix,Pids, lists:nth(1,NewParameters),lists:nth(2,NewParameters),Iterations,Minmaxelement,TotalElements,CurrentPid);
         
         {tick, Function}->
-        timer:send_after(1000, {tick, Function}),
+        timer:send_after(100, {tick, Function}),
             if
                 Iterations /= 0 ->
                     self() ! {send,Function},
                     threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,TotalElements,CurrentPid);
+                Iterations == -1 ->
+                    threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,-1,Minmaxelement,TotalElements,CurrentPid);
                 true -> 
-                    self() ! {convergence, Function},
-                    threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,TotalElements,CurrentPid)
+                    %This Send after timming corresponds to maximum time sqew of all nodes.
+                    timer:send_after(10000, {convergence, Function}),
+                    threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,-1,Minmaxelement,TotalElements,CurrentPid)
             end
             
     end.
