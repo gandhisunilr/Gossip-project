@@ -98,7 +98,7 @@ end.
 	
 
 threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor) ->
-	%getneighbours()
+	%p=getneighbours()
 	receive
 		%get the pids of all processes,
         {pid, Pidsmsg } ->
@@ -187,7 +187,6 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,Tota
         	Pid ! { returnmsg, Function, self(), Myvalue },
         	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
             NewParameters = calculate( Function, Myvalue,Value,Fragment),
-            %TODO: Fix this function and returnmsg pass Minmaxelement to calculate (Question : will it return it?)
             threadnodes(TransitionMatrix,Pids,lists:nth(1,NewParameters) ,lists:nth(2,NewParameters),Iterations,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor);
 
         %Reply Recieve Function from Process Pid with his value	
