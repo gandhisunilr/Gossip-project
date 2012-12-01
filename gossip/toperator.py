@@ -47,7 +47,7 @@ def topology(N):
 	for Cha in Chain:
 		g.write(str(len(Cha)))
 		g.write('\n')
-		result += ";".join(",".join(map(str,row)) for row in Cha)
+		result += " ".join(",".join(map(str,row)) for row in Cha)
 		result += "\n"
  	f.write(result)
 
