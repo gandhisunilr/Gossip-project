@@ -2,14 +2,14 @@
 -compile(export_all).
 -import(matrix).
 
-something(Value,Fragment) ->
-    SortedList = lists:keysort(2,Fragment),
-    noofelements(Value, SortedList,0).
+something(FileName) ->
+    {ok, Device} = file:open(FileName, [read]),
+    get_all_lines(Device, []).
 
-noofelements(Value, SortedList, Noofelem) ->
-    if
-        (element(2,hd(SortedList)) < Value) ->
-            noofelements(Value, tl(SortedList),Noofelem+1);
-        true ->
-            Noofelem
+get_all_lines(Device, Accum) ->
+	Tuple = io:fread(Device, "","~d,~f "),
+    case Tuple of
+    	eof -> file:close(Device), Accum;
+    	{ok, [I, P]} -> 
+            get_all_lines(Device, Accum ++ [{I,P}])
     end.
