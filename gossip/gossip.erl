@@ -3,18 +3,22 @@
 -import(lister).
 -import(updateFound).
 -import(fragreader, [genfrags/1]).
+-import(getneighbours).
+-import(getsizeneighbours).
 -compile(export_all).
 
 start(Function,Input,InputList)->
-	%P = generate_topology()
-	P=matrix:new(100,100,fun (Column, Row, Columns, _) ->                      
-	Columns * (Row - 1) + Column
-	end),
-	gossip(Function,P,Input,InputList).
+	TransitionMatrix = getneighbours:getneighbours(ptm.txt),
+    % This is named P because length of TransitionMatrix is same as siae of neighbours
+    NeighboursListSize = getsizeneighbours:getsizeneighbours(neighbours.txt),
+	% P=matrix:new(100,100,fun (Column, Row, Columns, _) ->                      
+	% Columns * (Row - 1) + Column
+	% end),
+	gossip(Function,NeighboursListSize,TransitionMatrix,Input,InputList).
 
-gossip(Function,TransitionMatrix,Input,InputList) ->
-    FragList = genfrags(length(TransitionMatrix)),
-	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input,Function, FragList,InputList),
+gossip(Function,NeighboursListSize, TransitionMatrix ,Input,InputList) ->
+    FragList = genfrags(length(NeighboursListSize)),
+	Pids = create(length(NeighboursListSize),[],NeighboursListSize,TransitionMatrix,Input,Function, FragList,InputList),
 	sendpids(length(Pids),Pids,Function),
 	starttimer(Pids,Function).
 	
@@ -35,11 +39,12 @@ sendpids(I,Pids,Function) ->
     end,
 	sendpids(I-1,Pids,Function).
 
-create(0,Pids,TransitionMatrix,Input,Function, FragList,InputList) -> Pids;
-create(I,Pids,TransitionMatrix,Input,Function, FragList,InputList)->
+create(0,Pids,NeighboursListSize,TransitionMatrix,Input,Function, FragList,InputList) -> Pids;
+create(I,Pids,NeighboursListSize,TransitionMatrix,Input,Function, FragList,InputList)->
     Fragment = lists:nth(I, FragList),
-	Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],initthread(I,Input,Fragment,Function,InputList), Fragment, 0) end),
-	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input,Function, FragList,InputList).
+    NeighboursList = element(1,lists:split(lists:nth(I,NeighboursListSize),TransitionMatrix)),
+	Pid = spawn_link(fun() -> threadnodes(NeighboursListSize,NeighboursList,[],initthread(I,Input,Fragment,Function,InputList), Fragment, 0) end),
+	create(I-1,  (Pids ++ [Pid]), NeighboursListSize, TransitionMatrix, Input,Function, FragList,InputList).
 
 initthread(I,Input,Fragment,Function,InputList) -> 
 	case Input of 
@@ -81,20 +86,15 @@ case Function of
         Result ++ [NewParent]
         end.                 
 
-
-%            Tail = tl(hd(Result)),
-%            Head = hd(hd(Result)),
-%            {_, Y} = Head,
-%            if Tail /= [], Y /= 0  ->
-%                hd(tl(hd(Result))) ! {retrieve, Head};
-             %   io:format("Result is ~p and ~p", [hd(Tail), Resut]);
-%            true -> empty 
-%            end,
-%        Result    
-%    end.
-
-selectneighbours(TransitionMatrix, Pids, Pid) ->
-	lists:nth(random:uniform(length(TransitionMatrix)), Pids).
+selectneighbours(NeighboursList, Pids,R,Sum,Iteration,CurrentIndex) ->
+	if
+        R < Sum ->
+            lists:nth(CurrentIndex, Pids);
+        true ->
+            NewSum = Sum + element(2,lists:nth(Iteration, NeighboursList)),
+            NewCurrentIndex = element(1,lists:nth(Iteration, NeighboursList)),
+            selectneighbours(NeighboursList,Pids,R,NewSum,Iteration +1,NewCurrentIndex)  
+    end.
 
 printmsg(Function,Type,Printlist)->
 case Type of
@@ -103,25 +103,24 @@ case Type of
 end.
 	
 
-threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Parent) ->
-    %TODO: Do we need Myvalue as it can be calculated from Fragment?
-	%getneighbours()
+threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,Parent) ->
 	receive
 		%get the pids of all processes,
         {pid, Pidsmsg } ->
         %	io:format("I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
-        % 	threadnodes(TransitionMatrix,Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment);
-        	threadnodes(TransitionMatrix,Pidsmsg, Myvalue, Fragment,Parent);
+        % 	threadnodes(NeighboursListSize,Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment);
+        	threadnodes(NeighboursListSize,NeighboursList, Pidsmsg, Myvalue, Fragment,Parent);
         
          {pid, Pidsmsg, retrieve} ->
        % 	io:format("Retrieve: I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
-         	threadnodes(TransitionMatrix,Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment, Parent);
+         	threadnodes(NeighboursListSize,NeighboursList, Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment, Parent);
         
         %Send Function	This function must be executed after every few minutes
         {send, Function} ->
-        	Pid=selectneighbours(TransitionMatrix, Pids, self()),
+            {I, P} = hd(NeighboursList),
+        	Pid=selectneighbours(NeighboursList, Pids,random:uniform(length(NeighboursListSize)),P,1,I),
         	Pid ! {Function, self(), Myvalue},
-        	threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Parent);
+        	threadnodes(NeighboursListSize,NeighboursList, Pids,Myvalue,Fragment,Parent);
 
         %Recieve Function from Process Pid with his value
         {Function, Pid, Value } ->
@@ -129,14 +128,14 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Parent) ->
         %	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
             ValueList = calculate(Function, Myvalue, Value, Fragment, Pid, Parent),
         %    io:format("Result in Recieve ~p", [ValueList]),
-            threadnodes(TransitionMatrix,Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),lists:nth(3, ValueList));
+            threadnodes(NeighboursListSize,NeighboursList, Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),lists:nth(3, ValueList));
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
          %   printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
             ValueList = calculate(Function, Myvalue, Value, Fragment, Pid, Parent),
          %   io:format("Result in Returnmsg~p", [ValueList]),
-            threadnodes(TransitionMatrix,Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),lists:nth(3, ValueList));
+            threadnodes(NeighboursListSize,NeighboursList, Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),lists:nth(3, ValueList));
 
         {retrieve, Result} ->
             io:format("~p retrieve ~p ",[self(), hd(hd(Result))]),
@@ -147,5 +146,5 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Parent) ->
         {tick, Function}->
        		self() ! {send,Function},
             timer:send_after(1000, {tick, Function}),
-            threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Parent)
+            threadnodes(NeighboursListSize,NeighboursList, Pids,Myvalue,Fragment,Parent)
     end.
