@@ -22,18 +22,16 @@ Output: python topgen.py 10
 
 """ Degree Variance """
 
-def topology(N, Degree, SD):
+def topology(N):
 	Cords = generate_coordinates(N)
 	Neighbours = []
 	for i in range(N):
 		Value = Cords[i]
 		MyNeighbours = []
-		Max = Degree + random.randrange(-SD, SD)
 		for j in range(N):
 			V2 = Cords[j]
 			if is_neighbour(calculate_distance(Value[0], Value[1], V2[0], V2[1])):
 				MyNeighbours.append(j)	
-			elif len(MyNeighbours) > Max: break
 			else: continue 
 
 		if MyNeighbours == []:
@@ -42,10 +40,18 @@ def topology(N, Degree, SD):
 			MyNeighbours.append(index)
 		Neighbours.append(MyNeighbours)		
 
-#	print Neighbours	
-	return generate_chain(N, Neighbours)	
+	Chain = generate_chain(N, Neighbours)	
+	f = open('ptm.txt', 'w')
+	g = open('neighbours.txt', 'w')
+	result = ""
+	for Cha in Chain:
+		g.write(str(len(Cha)))
+		g.write('\n')
+		result += ";".join(",".join(map(str,row)) for row in Cha)
+		result += "\n"
+ 	f.write(result)
 
-	
+
 def generate_chain(N, Neighbours):
 
 	Chain = []
@@ -57,8 +63,8 @@ def generate_chain(N, Neighbours):
 			Bone = Neighbours[j]
 			Other = 1/(1 + float((max(len(Nebo),len(Bone)))))
 			SumOfOthers += Other 
-			Element.append([j, Other/2]) #Pij/2 Lazy 
-		Element.append([i, (1 + (1 - SumOfOthers))/2]) #1 + Pij Lazy 	
+			Element.append([j+1, Other/2]) #Pij/2 Lazy 
+		Element.append([i+1, (1 + (1 - SumOfOthers))/2]) #1 + Pij Lazy 	
 		Chain.append(Element)
 	return Chain
 
@@ -70,11 +76,11 @@ def generate_coordinates(N):
 	return [[random.random(), random.random()] for x in  range(N)]
 
 def is_neighbour(Distance):
-	if Distance >= 0.3 or Distance == 0.0:
+	if Distance >= 0.1 or Distance == 0.0:
 		return False
 	return True
 
 
 if __name__	== "__main__":
 	N = eval(sys.argv[1])
-	topology(N, 5, 5)
+	topology(N)
