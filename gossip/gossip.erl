@@ -15,7 +15,7 @@ start(Function,Input,ReplicationFactor,InputList)->
 
 gossip(Function,TransitionMatrix,Input,ReplicationFactor, InputList) ->
     FragList = genfrags(length(TransitionMatrix),ReplicationFactor),
-	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input,Function, FragList,ReplicationFactor, InputList),
+	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input,Function, FragList,ReplicationFactor, InputList,length(lists:flatten(FragList))),
 	sendpids(length(Pids),Pids),
 	starttimer(Pids,Function).
 	
@@ -33,14 +33,14 @@ sendpids(I,Pids) ->
 	lists:nth(I,Pids) ! {pid, Pids},
 	sendpids(I-1,Pids).
 
-create(0,Pids,TransitionMatrix,Input,Function, FragList,ReplicationFactor, InputList) -> Pids;
-create(I,Pids,TransitionMatrix,Input,Function, FragList,ReplicationFactor,InputList)->
+create(0,Pids,TransitionMatrix,Input,Function, FragList,ReplicationFactor, InputList,FragmentSize) -> Pids;
+create(I,Pids,TransitionMatrix,Input,Function, FragList,ReplicationFactor,InputList,FragmentSize)->
     Fragment = lists:nth(I, FragList),
 	Myvalue = initthread(I,Input,Fragment,Function,InputList),
     Iterations = length(TransitionMatrix) * length(TransitionMatrix),
     Minmaxelement = {0,length(Fragment)},
-    Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],Myvalue, Fragment,Iterations,Minmaxelement,999,getcurrentpid(I),ReplicationFactor) end),
-	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input,Function, FragList,ReplicationFactor,InputList).
+    Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],Myvalue, Fragment,Iterations,Minmaxelement,FragmentSize,getcurrentpid(I),ReplicationFactor) end),
+	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input,Function, FragList,ReplicationFactor,InputList,FragmentSize).
 
 getcurrentpid(I)->
     if
