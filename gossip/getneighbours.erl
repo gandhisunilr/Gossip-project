@@ -1,8 +1,8 @@
--module(something).
+-module(getneighbours).
 -compile(export_all).
 -import(matrix).
 
-something(FileName) ->
+getneighbours(FileName) ->
     {ok, Device} = file:open(FileName, [read]),
     get_all_lines(Device, []).
 

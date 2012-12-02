@@ -16,7 +16,8 @@ getValue(I, List, Op, InputList) ->
             if
                 I == 1 -> summarize(List,[],median);
                 true -> [0, 0]
-            end;    
+            end;  
+        retrieve -> InputList;
         X-> summarize(List, [], Op)
     end.
 
@@ -29,10 +30,16 @@ summarize([], L, Op) ->
         mean -> [erlang:length(L), lists:sum(L)]
     end;
     
+    
 summarize([H|T], L, Op) -> 
     summarize(T, [split(H)|L], Op).
 
 split({X, Y}) -> Y.
 
-
-    
+retriever(Myvalue, Pids, Pid) ->
+    case lists:nth(length(Pids), Pids) == Pid of
+        true ->
+            io:format("Node 1 Pid: ~p", [Pid]),
+            [hd(Myvalue)|[Pid]]; 
+        false -> [{0,0}]
+    end.
