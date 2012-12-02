@@ -4,18 +4,20 @@
 -import(updateFound).
 -import(fragreader, [genfrags/2]).
 -import (nolessthan,[nolessthan/2]).
+-import(getneighbours).
+-import(getsizeneighbours).
 -compile(export_all).
 
 start(Function,Input,ReplicationFactor,InputList)->
-	%P = generate_topology()
-	P=matrix:new(10,10,fun (Column, Row, Columns, _) ->                      
-	Columns * (Row - 1) + Column
-	end),
-	gossip(Function,P,Input,ReplicationFactor,InputList).
+	TransitionMatrix = getneighbours:getneighbours(ptm.txt),
+    % This is named P because length of TransitionMatrix is same as siae of neighbours
+    NeighboursListSize = getsizeneighbours:getsizeneighbours(neighbours.txt),
+    io:format("Loaded"),
+    gossip(Function,NeighboursListSize,TransitionMatrix,Input,ReplicationFactor,InputList).
 
-gossip(Function,TransitionMatrix,Input,ReplicationFactor, InputList) ->
-    FragList = genfrags(length(TransitionMatrix),ReplicationFactor),
-	Pids = create(length(TransitionMatrix),[],TransitionMatrix,Input,Function, FragList,ReplicationFactor, InputList,length(lists:flatten(FragList))),
+gossip(Function,NeighboursListSize, TransitionMatrix ,Input,ReplicationFactor, InputList) ->
+    FragList = genfrags(length(NeighboursListSize),ReplicationFactor),
+	Pids = create(length(NeighboursListSize),[],NeighboursListSize,TransitionMatrix,Input,Function, FragList,ReplicationFactor, InputList,length(lists:flatten(FragList))),
 	sendpids(length(Pids),Pids),
 	starttimer(Pids,Function).
 	
@@ -33,14 +35,17 @@ sendpids(I,Pids) ->
 	lists:nth(I,Pids) ! {pid, Pids},
 	sendpids(I-1,Pids).
 
-create(0,Pids,TransitionMatrix,Input,Function, FragList,ReplicationFactor, InputList,FragmentSize) -> Pids;
-create(I,Pids,TransitionMatrix,Input,Function, FragList,ReplicationFactor,InputList,FragmentSize)->
+create(0,Pids,NeighboursListSize,TransitionMatrix,Input,Function, FragList,ReplicationFactor,InputList,FragmentSize) -> Pids;
+create(I,Pids,NeighboursListSize,TransitionMatrix,Input,Function, FragList,ReplicationFactor,InputList,FragmentSize)->
     Fragment = lists:nth(I, FragList),
+    Nodeno =(length(NeighboursListSize)-I) +1,
+    PartitionList = lists:split(lists:nth(Nodeno,NeighboursListSize),TransitionMatrix),
+    NeighboursList = element(1, PartitionList),
 	Myvalue = initthread(I,Input,Fragment,Function,InputList),
-    Iterations = length(TransitionMatrix) * length(TransitionMatrix),
+    Iterations = round(length(NeighboursListSize) * math:log(length(NeighboursListSize))) ,
     Minmaxelement = {0,length(Fragment)},
-    Pid = spawn_link(fun() -> threadnodes(TransitionMatrix,[],Myvalue, Fragment,Iterations,Minmaxelement,FragmentSize,getcurrentpid(I),ReplicationFactor) end),
-	create(I-1,  (Pids ++ [Pid]), TransitionMatrix, Input,Function, FragList,ReplicationFactor,InputList,FragmentSize).
+    Pid = spawn_link(fun() -> threadnodes(NeighboursListSize,NeighboursList,[],Myvalue, Fragment,Iterations,Minmaxelement,FragmentSize,getcurrentpid(I),ReplicationFactor) end),
+    create(I-1,  (Pids ++ [Pid]), NeighboursListSize, element(2, PartitionList), Input,Function, FragList,ReplicationFactor,InputList,FragmentSize).
 
 getcurrentpid(I)->
     if
@@ -87,8 +92,15 @@ case Function of
         update -> updateFound:upFound(Myvalue, Value,Fragment) 
     end.
 
-selectneighbours(TransitionMatrix, Pids, Pid) ->
-	lists:nth(random:uniform(length(TransitionMatrix)), Pids).
+selectneighbours(NeighboursList, Pids,R,Sum,Iteration,CurrentIndex) ->
+    if
+        R < Sum ->
+            lists:nth(CurrentIndex, Pids);
+        true ->
+            NewSum = Sum + element(2,lists:nth(Iteration, NeighboursList)),
+            NewCurrentIndex = element(1,lists:nth(Iteration, NeighboursList)),
+            selectneighbours(NeighboursList,Pids,R,NewSum,Iteration +1,NewCurrentIndex)  
+    end.
 
 printmsg(Function,Type,Printlist)->
 case Type of
@@ -96,27 +108,28 @@ case Type of
 	returnmsg -> true%io:format("~p : ~p Received from ~p :~p Reply Computing ~p ~n", [hd(Printlist),hd(lists:nth(2,Printlist)),lists:nth(3,Printlist),hd(lists:nth(4,Printlist)), Function])
 end.
 	
-
-threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor) ->
+threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,Iterations,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor) ->
 	%p=getneighbours()
 	receive
 		%get the pids of all processes,
         {pid, Pidsmsg } ->
         	%io:format("I got pids ~p ~n",[self()]),
-            NewIterations = length(TransitionMatrix) * length(TransitionMatrix),
-        	threadnodes(TransitionMatrix,Pidsmsg,Myvalue,Fragment,NewIterations,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor);
+            random:seed(erlang:now()),
+        	threadnodes(NeighboursListSize,NeighboursList,Pidsmsg,Myvalue,Fragment,Iterations,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor);
         
         %Send Function	This function must be executed after every few minutes
         {send, Function} ->
-        	Pid=selectneighbours(TransitionMatrix, Pids, self()),
-        	Pid ! {Function, self(), Myvalue},
-        	threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations-1,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor);
+            {I, P} = hd(NeighboursList),    
+        	Pid=selectneighbours(NeighboursList, Pids,random:uniform(),P,1,I),
+            Pid ! {Function, self(), Myvalue},
+        	threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,Iterations-1,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor);
 
         {yourturn, SenderPid, Function,SenderValue} ->
             io:format("~p I am your New Bully~n",[self()]),
             if
                 CurrentPid == -1 ->
-                    Pid=selectneighbours(TransitionMatrix, Pids, self()),
+                    {I, P} = hd(NeighboursList),
+                    Pid=selectneighbours(NeighboursList, Pids,random:uniform(),P,1,I),
                     NewCurrentPid = -1,
                     NewMyvalue = [{0,0}],
                     Pid ! {yourturn, self(),Function,SenderValue};
@@ -126,16 +139,16 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,Tota
                     NewMyvalue = SenderValue,
                     self() ! {convergence, Function}
             end,
-            threadnodes(TransitionMatrix,Pids,NewMyvalue,Fragment,Iterations-1,Minmaxelement,TotalElements,NewCurrentPid,ReplicationFactor);            
+            threadnodes(NeighboursListSize,NeighboursList,Pids,NewMyvalue,Fragment,Iterations-1,Minmaxelement,TotalElements,NewCurrentPid,ReplicationFactor);
 
         {convergence, Function} ->
-            N = length(TransitionMatrix),
+            N = length(NeighboursListSize),
             %reset all values    
             ElemLessThanFrag = nolessthan(element(1,hd(Myvalue)),Fragment),%0
             %Divide by replication factor
             ElemLessThan = round((element(2,hd(Myvalue))*N)/ReplicationFactor),%0
             if
-                (ElemLessThan > (round(TotalElements/2)-5)) and (ElemLessThan < (round(TotalElements/2)+5)) ->
+                (ElemLessThan > (round(TotalElements/2)-10)) and (ElemLessThan < (round(TotalElements/2)+10)) ->
                     %Stop here
                     io:format("Median is somewhere around ~p ~n",[element(1,hd(Myvalue))]);
                 true ->
@@ -158,7 +171,8 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,Tota
                                     %Here I am selecting a node randomly, But this will not work in any topology
                                     %Here for Complete graph it will work as all nodes are connected to every other node
                                     %For others we can keep track of children and then do it.
-                                    Pid=selectneighbours(TransitionMatrix, Pids, self()),
+                                    {I, P} = hd(NeighboursList),
+                                    Pid=selectneighbours(NeighboursList, Pids,random:uniform(),P,1,I),
                                     NewCurrentPid = -1,
                                     NewMyvalue = [{0,0}],
                                     Pid ! {yourturn, self(),Function,Myvalue};
@@ -178,8 +192,8 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,Tota
                             NewCurrentPid = CurrentPid
                     end,
                     io:format("~p Value ~p less than ~p New Minmaxelement: ~p ~n",[self(),element(1,hd(Myvalue)),(element(2,hd(Myvalue))*N)/ReplicationFactor,NewMinmaxelement ]),
-                    NewIterations = length(TransitionMatrix)*length(TransitionMatrix),
-                    threadnodes(TransitionMatrix,Pids,NewMyvalue,Fragment,NewIterations,NewMinmaxelement,TotalElements,NewCurrentPid,ReplicationFactor)
+                    NewIterations = round(length(NeighboursListSize) * math:log(length(NeighboursListSize))),
+                    threadnodes(NeighboursListSize,NeighboursList,Pids,NewMyvalue,Fragment,NewIterations,NewMinmaxelement,TotalElements,NewCurrentPid,ReplicationFactor)
             end;
             
         %Recieve Function from Process Pid with his value
@@ -187,26 +201,26 @@ threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,Tota
         	Pid ! { returnmsg, Function, self(), Myvalue },
         	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
             NewParameters = calculate( Function, Myvalue,Value,Fragment),
-            threadnodes(TransitionMatrix,Pids,lists:nth(1,NewParameters) ,lists:nth(2,NewParameters),Iterations,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor);
+            threadnodes(NeighboursListSize,NeighboursList,Pids,lists:nth(1,NewParameters) ,lists:nth(2,NewParameters),Iterations,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor);
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
             printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
             NewParameters = calculate( Function, Myvalue,Value,Fragment),
-            threadnodes(TransitionMatrix,Pids, lists:nth(1,NewParameters),lists:nth(2,NewParameters),Iterations,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor);
+            threadnodes(NeighboursListSize,NeighboursList,Pids, lists:nth(1,NewParameters),lists:nth(2,NewParameters),Iterations,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor);
         
         {tick, Function}->
         timer:send_after(100, {tick, Function}),
             if
                 Iterations /= 0 ->
                     self() ! {send,Function},
-                    threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,Iterations,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor);
+                    threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,Iterations,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor);
                 Iterations == -1 ->
-                    threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,-1,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor);
+                    threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,-1,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor);
                 true -> 
                     %This Send after timming corresponds to maximum time sqew of all nodes.
-                    timer:send_after(10000, {convergence, Function}),
-                    threadnodes(TransitionMatrix,Pids,Myvalue,Fragment,-1,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor)
+                    timer:send_after(50000, {convergence, Function}),
+                    threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,-1,Minmaxelement,TotalElements,CurrentPid,ReplicationFactor)
             end
             
     end.
