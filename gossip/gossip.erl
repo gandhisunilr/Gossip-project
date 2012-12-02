@@ -11,16 +11,12 @@ start(Function,Input,ReplicationFactor, InputList)->
 	TransitionMatrix = getneighbours:getneighbours(ptm.txt),
     % This is named P because length of TransitionMatrix is same as siae of neighbours
     NeighboursListSize = getsizeneighbours:getsizeneighbours(neighbours.txt),
-	% P=matrix:new(100,100,fun (Column, Row, Columns, _) ->                      
-	% Columns * (Row - 1) + Column
-	% end),
     io:format("Loaded"),
 	gossip(Function,NeighboursListSize,TransitionMatrix,Input,ReplicationFactor,InputList).
 
 gossip(Function,NeighboursListSize, TransitionMatrix ,Input,ReplicationFactor, InputList) ->
     FragList = genfrags(length(NeighboursListSize),ReplicationFactor),
 	Pids = create(length(NeighboursListSize),[],NeighboursListSize,TransitionMatrix,Input,Function, FragList,ReplicationFactor,InputList),
-    io:format("Don't Get Scared : Nodes Created"),
 	sendpids(length(Pids),Pids,Function),
 	starttimer(Pids,Function).
 	
@@ -70,7 +66,7 @@ case Function of
         meanfragments->[[(hd(Myvalue) + hd(Value))/2, (tl(Myvalue) + tl(Value))/(hd(Myvalue) + hd(Value))/2],Fragment,0];
         update -> updateFound:upFound(Myvalue, Value,Fragment, Function) ++ [0] ;
         retrieve -> Result = updateFound:upFound(Myvalue, Value, Fragment, Function),
-        %    io:format("Result is ~p", [Result]),
+            %io:format("Result is ~p", [Result]),
             Head = hd(hd(Result)),
             Mycheck = element(1, hd(Myvalue)),
             Check = element(1, hd(Value)),
@@ -78,8 +74,8 @@ case Function of
                 Check /= 0, Mycheck == 0 -> 
                     if 
                         element(2, Head) /= 0  ->
-%                        io:format("Parent of found node ~p~n", [Parent]), 
-%                        io:format("Sending retrieve to ~p~n", [Pid]), 
+                        %io:format("Parent of found node ~p~n", [Parent]), 
+                        %io:format("Sending retrieve to ~p~n", [Pid]), 
                         Pid ! {retrieve, Result};
                         true -> nothing
                     end,
@@ -112,7 +108,6 @@ threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,ReplicationF
 		%get the pids of all processes,
         {pid, Pidsmsg } ->
         %	io:format("I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
-        % 	threadnodes(NeighboursListSize,Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment);
             random:seed(erlang:now()),
         	threadnodes(NeighboursListSize,NeighboursList, Pidsmsg, Myvalue, Fragment,ReplicationFactor,Parent);
         
@@ -132,14 +127,14 @@ threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,ReplicationF
         	Pid ! { returnmsg, Function, self(), Myvalue },
         	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
             ValueList = calculate(Function, Myvalue, Value, Fragment, Pid, Parent),
-        %    io:format("Result in Recieve ~p", [ValueList]),
+            file:write_file("gossipvalues",io_lib:fwrite("~p ~p\n", [self(),hd(lists:nth(1,ValueList))]),[append]),
             threadnodes(NeighboursListSize,NeighboursList, Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),ReplicationFactor, lists:nth(3, ValueList));
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
             printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
             ValueList = calculate(Function, Myvalue, Value, Fragment, Pid, Parent),
-         %   io:format("Result in Returnmsg~p", [ValueList]),
+            file:write_file("gossipvalues",io_lib:fwrite("~p ~p\n", [self(),hd(lists:nth(1,ValueList))]),[append]),
             threadnodes(NeighboursListSize,NeighboursList, Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),ReplicationFactor,lists:nth(3, ValueList));
 
         {retrieve, Result} ->
