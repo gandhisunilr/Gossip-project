@@ -76,7 +76,7 @@ def generate_coordinates(N):
 	return [[random.random(), random.random()] for x in  range(N)]
 
 def is_neighbour(Distance):
-	if Distance >= 0.1 or Distance == 0.0:
+	if Distance >= 0.2 or Distance == 0.0:
 		return False
 	return True
 

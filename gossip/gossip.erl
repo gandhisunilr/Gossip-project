@@ -2,29 +2,31 @@
 -import(matrix).
 -import(lister).
 -import(updateFound).
--import(fragreader, [genfrags/1]).
+-import(fragreader, [genfrags/2]).
 -import(getneighbours).
 -import(getsizeneighbours).
 -compile(export_all).
 
-start(Function,Input,InputList)->
+start(Function,Input,ReplicationFactor, InputList)->
 	TransitionMatrix = getneighbours:getneighbours(ptm.txt),
     % This is named P because length of TransitionMatrix is same as siae of neighbours
     NeighboursListSize = getsizeneighbours:getsizeneighbours(neighbours.txt),
 	% P=matrix:new(100,100,fun (Column, Row, Columns, _) ->                      
 	% Columns * (Row - 1) + Column
 	% end),
-	gossip(Function,NeighboursListSize,TransitionMatrix,Input,InputList).
+    io:format("Loaded"),
+	gossip(Function,NeighboursListSize,TransitionMatrix,Input,ReplicationFactor,InputList).
 
-gossip(Function,NeighboursListSize, TransitionMatrix ,Input,InputList) ->
-    FragList = genfrags(length(NeighboursListSize)),
-	Pids = create(length(NeighboursListSize),[],NeighboursListSize,TransitionMatrix,Input,Function, FragList,InputList),
+gossip(Function,NeighboursListSize, TransitionMatrix ,Input,ReplicationFactor, InputList) ->
+    FragList = genfrags(length(NeighboursListSize),ReplicationFactor),
+	Pids = create(length(NeighboursListSize),[],NeighboursListSize,TransitionMatrix,Input,Function, FragList,ReplicationFactor,InputList),
+    io:format("Don't Get Scared : Nodes Created"),
 	sendpids(length(Pids),Pids,Function),
 	starttimer(Pids,Function).
 	
 
 starttimer(Pids,Function) ->
-	hd(Pids) ! {tick, Function},
+    hd(Pids)!{tick, Function},
 	if
 		length(Pids) /= 1 ->
 			starttimer(tl(Pids), Function);
@@ -39,12 +41,14 @@ sendpids(I,Pids,Function) ->
     end,
 	sendpids(I-1,Pids,Function).
 
-create(0,Pids,NeighboursListSize,TransitionMatrix,Input,Function, FragList,InputList) -> Pids;
-create(I,Pids,NeighboursListSize,TransitionMatrix,Input,Function, FragList,InputList)->
+create(0,Pids,NeighboursListSize,TransitionMatrix,Input,Function, FragList,ReplicationFactor,InputList) -> Pids;
+create(I,Pids,NeighboursListSize,TransitionMatrix,Input,Function, FragList,ReplicationFactor,InputList)->
     Fragment = lists:nth(I, FragList),
-    NeighboursList = element(1,lists:split(lists:nth(I,NeighboursListSize),TransitionMatrix)),
-	Pid = spawn_link(fun() -> threadnodes(NeighboursListSize,NeighboursList,[],initthread(I,Input,Fragment,Function,InputList), Fragment, 0) end),
-	create(I-1,  (Pids ++ [Pid]), NeighboursListSize, TransitionMatrix, Input,Function, FragList,InputList).
+    Nodeno =(length(NeighboursListSize)-I) +1,
+    PartitionList = lists:split(lists:nth(Nodeno,NeighboursListSize),TransitionMatrix),
+    NeighboursList = element(1, PartitionList),
+	Pid = spawn_link(fun() -> threadnodes(NeighboursListSize,NeighboursList,[],initthread(I,Input,Fragment,Function,InputList), Fragment,ReplicationFactor,0) end),
+	create(I-1,  (Pids ++ [Pid]), NeighboursListSize, element(2, PartitionList), Input,Function, FragList,ReplicationFactor, InputList).
 
 initthread(I,Input,Fragment,Function,InputList) -> 
 	case Input of 
@@ -64,7 +68,7 @@ case Function of
         min-> [[erlang:min(hd(Myvalue), hd(Value))],Fragment,0];
         mean->[[(hd(Myvalue) + hd(Value))/2],Fragment,0];
         meanfragments->[[(hd(Myvalue) + hd(Value))/2, (tl(Myvalue) + tl(Value))/(hd(Myvalue) + hd(Value))/2],Fragment,0];
-        update -> updateFound:upFound(Myvalue, Value,Fragment, Function);
+        update -> updateFound:upFound(Myvalue, Value,Fragment, Function) ++ [0] ;
         retrieve -> Result = updateFound:upFound(Myvalue, Value, Fragment, Function),
         %    io:format("Result is ~p", [Result]),
             Head = hd(hd(Result)),
@@ -74,8 +78,8 @@ case Function of
                 Check /= 0, Mycheck == 0 -> 
                     if 
                         element(2, Head) /= 0  ->
-                        io:format("Parent of found node ~p~n", [Parent]), 
-                        io:format("Sending retrieve to ~p~n", [Pid]), 
+%                        io:format("Parent of found node ~p~n", [Parent]), 
+%                        io:format("Sending retrieve to ~p~n", [Pid]), 
                         Pid ! {retrieve, Result};
                         true -> nothing
                     end,
@@ -103,39 +107,40 @@ case Type of
 end.
 	
 
-threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,Parent) ->
+threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,ReplicationFactor,Parent) ->
 	receive
 		%get the pids of all processes,
         {pid, Pidsmsg } ->
         %	io:format("I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
         % 	threadnodes(NeighboursListSize,Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment);
-        	threadnodes(NeighboursListSize,NeighboursList, Pidsmsg, Myvalue, Fragment,Parent);
+            random:seed(erlang:now()),
+        	threadnodes(NeighboursListSize,NeighboursList, Pidsmsg, Myvalue, Fragment,ReplicationFactor,Parent);
         
          {pid, Pidsmsg, retrieve} ->
        % 	io:format("Retrieve: I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
-         	threadnodes(NeighboursListSize,NeighboursList, Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment, Parent);
+         	threadnodes(NeighboursListSize,NeighboursList, Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment,ReplicationFactor, Parent);
         
         %Send Function	This function must be executed after every few minutes
         {send, Function} ->
             {I, P} = hd(NeighboursList),
-        	Pid=selectneighbours(NeighboursList, Pids,random:uniform(length(NeighboursListSize)),P,1,I),
+        	Pid=selectneighbours(NeighboursList, Pids,random:uniform(),P,1,I),
         	Pid ! {Function, self(), Myvalue},
-        	threadnodes(NeighboursListSize,NeighboursList, Pids,Myvalue,Fragment,Parent);
+        	threadnodes(NeighboursListSize,NeighboursList, Pids,Myvalue,Fragment,ReplicationFactor, Parent);
 
         %Recieve Function from Process Pid with his value
         {Function, Pid, Value } ->
         	Pid ! { returnmsg, Function, self(), Myvalue },
-        %	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
+        	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
             ValueList = calculate(Function, Myvalue, Value, Fragment, Pid, Parent),
         %    io:format("Result in Recieve ~p", [ValueList]),
-            threadnodes(NeighboursListSize,NeighboursList, Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),lists:nth(3, ValueList));
+            threadnodes(NeighboursListSize,NeighboursList, Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),ReplicationFactor, lists:nth(3, ValueList));
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
-         %   printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
+            printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
             ValueList = calculate(Function, Myvalue, Value, Fragment, Pid, Parent),
          %   io:format("Result in Returnmsg~p", [ValueList]),
-            threadnodes(NeighboursListSize,NeighboursList, Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),lists:nth(3, ValueList));
+            threadnodes(NeighboursListSize,NeighboursList, Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),ReplicationFactor,lists:nth(3, ValueList));
 
         {retrieve, Result} ->
             io:format("~p retrieve ~p ",[self(), hd(hd(Result))]),
@@ -146,5 +151,5 @@ threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,Parent) ->
         {tick, Function}->
        		self() ! {send,Function},
             timer:send_after(1000, {tick, Function}),
-            threadnodes(NeighboursListSize,NeighboursList, Pids,Myvalue,Fragment,Parent)
+            threadnodes(NeighboursListSize,NeighboursList, Pids,Myvalue,Fragment,ReplicationFactor,Parent)
     end.
