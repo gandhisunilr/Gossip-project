@@ -20,7 +20,6 @@ upFound(Myvalue, Value, Fragment, Function) ->
                 Temp
             end;    
         retrieve ->
-            io:format("Myvalue ~p, Value ~p", [Myvalue, Value]),
             if tl(Myvalue) /= [] -> %Checking
                 Pid = tl(Myvalue);
             true -> Pid = tl(Value)
@@ -28,7 +27,6 @@ upFound(Myvalue, Value, Fragment, Function) ->
             if Found == false ->
                 [[{K,V} | Pid], Fragment];
             true ->
-%                io:format("Retrieving value from Fragment ~p, the value is ~p~n", [Fragment, Found]),
                 [[Found | Pid], Fragment]
             end
     end.
