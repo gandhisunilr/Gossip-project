@@ -11,5 +11,8 @@ inside erl type
 
 2>gossip:start(max/min/mean/update/retrieve, identity/fragment, InputList = []/[{Index, Value)]).
 
-
-
+Checking Whether network has converged or not:
+findconvergence(Networksize,ActualValue, Percenterror)
+Example
+from findconvergence import *
+findconvergence(1000,6.42360262825,0.001)
