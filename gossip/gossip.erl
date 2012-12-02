@@ -14,13 +14,13 @@ start(Function,Input,ReplicationFactor, InputList)->
 	% P=matrix:new(100,100,fun (Column, Row, Columns, _) ->                      
 	% Columns * (Row - 1) + Column
 	% end),
-    io:format("Loaded"),
+    io:format("Loading"),
 	gossip(Function,NeighboursListSize,TransitionMatrix,Input,ReplicationFactor,InputList).
 
 gossip(Function,NeighboursListSize, TransitionMatrix ,Input,ReplicationFactor, InputList) ->
     FragList = genfrags(length(NeighboursListSize),ReplicationFactor),
 	Pids = create(length(NeighboursListSize),[],NeighboursListSize,TransitionMatrix,Input,Function, FragList,ReplicationFactor,InputList),
-    io:format("Don't Get Scared : Nodes Created"),
+    io:format("Don't Panic : Nodes Created"),
 	sendpids(length(Pids),Pids,Function),
 	starttimer(Pids,Function).
 	
@@ -111,8 +111,6 @@ threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,ReplicationF
 	receive
 		%get the pids of all processes,
         {pid, Pidsmsg } ->
-        %	io:format("I am ~p and my value, fragment are ~p | ~p~n ",[self(), Myvalue, Fragment]),
-        % 	threadnodes(NeighboursListSize,Pidsmsg, lister:retriever(Myvalue, Pidsmsg, self()), Fragment);
             random:seed(erlang:now()),
         	threadnodes(NeighboursListSize,NeighboursList, Pidsmsg, Myvalue, Fragment,ReplicationFactor,Parent);
         
@@ -132,20 +130,18 @@ threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,ReplicationF
         	Pid ! { returnmsg, Function, self(), Myvalue },
         	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
             ValueList = calculate(Function, Myvalue, Value, Fragment, Pid, Parent),
-        %    io:format("Result in Recieve ~p", [ValueList]),
             threadnodes(NeighboursListSize,NeighboursList, Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),ReplicationFactor, lists:nth(3, ValueList));
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
             printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
             ValueList = calculate(Function, Myvalue, Value, Fragment, Pid, Parent),
-         %   io:format("Result in Returnmsg~p", [ValueList]),
             threadnodes(NeighboursListSize,NeighboursList, Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),ReplicationFactor,lists:nth(3, ValueList));
 
         {retrieve, Result} ->
-            io:format("~p retrieve ~p ",[self(), hd(hd(Result))]),
+            %io:format("~p retrieve ~p ",[self(), hd(hd(Result))]),
             if self() /= tl(hd(Result)), Parent /= 0 -> Parent ! {retrieve, Result};
-            true -> io:format("###Node 1 ~p Parent ~p retrieve ~p ~n###",[self(), Parent, hd(hd(Result))])
+            true -> io:format("Retrieval Success: Node 1 ~p retrieve ~p ~n",[self(), Parent, hd(hd(Result))])
             end;
 
         {tick, Function}->
