@@ -8,6 +8,7 @@
 -compile(export_all).
 
 start(Function,Input,ReplicationFactor, InputList)->
+    file:write_file("gossipvalues","",[write]),
 	TransitionMatrix = getneighbours:getneighbours(ptm.txt),
     % This is named P because length of TransitionMatrix is same as siae of neighbours
     NeighboursListSize = getsizeneighbours:getsizeneighbours(neighbours.txt),
