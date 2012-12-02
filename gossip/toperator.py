@@ -4,25 +4,22 @@ import sys
 
 
 """
-Generates a topology with N nodes.
-To run: python topgen.py N
-Output: python topgen.py 10
-[[0, 3, 0.1], [0, 6, 0.1], [0, 7, 0.1], [0, 8, 0.1], [0, 0, 0.6]]
-[[1, 4, 0.125], [1, 9, 0.16666666666666666], [1, 1, 0.7083333333333334]]
-[[2, 4, 0.125], [2, 5, 0.16666666666666666], [2, 2, 0.7083333333333334]]
-[[3, 0, 0.1], [3, 6, 0.1], [3, 8, 0.125], [3, 3, 0.675]]
-[[4, 1, 0.125], [4, 2, 0.125], [4, 9, 0.125], [4, 4, 0.625]]
-[[5, 2, 0.16666666666666666], [5, 9, 0.16666666666666666], [5, 5, 0.6666666666666667]]
-[[6, 0, 0.1], [6, 3, 0.1], [6, 7, 0.1], [6, 8, 0.1], [6, 6, 0.6]]
-[[7, 0, 0.1], [7, 2, 0.125], [7, 6, 0.1], [7, 7, 0.675]]
-[[8, 0, 0.1], [8, 3, 0.125], [8, 6, 0.1], [8, 8, 0.675]]
-[[9, 1, 0.16666666666666666], [9, 2, 0.16666666666666666], [9, 9, 0.6666666666666667]]
+Generates a topology with N nodes with the number of neighbours determined by Neighbourhood threshold.
+
+N number of random coordinates are generated in the coordinate space [0,1). For determining neighbours 
+a coordinate is chosen from the list of coordinates and the distance between that coordinate and rest 
+of the neighbours is calculated. If the distance falls under a value as specified by Radius, it is added
+as a neighbour otherwise it is ignored. 
+
+After the above step each node has a list of neighbours associated with it. To calculate transition probabilities
+for the markov chain, the method given by Dr. K based on degree of nodes was used. Also it was made sure that PTM  
+is lazy by averaging it with Identity matrix.
+
+Output: Neighbours.txt, ptm.txt
 
 """
 
-""" Degree Variance """
-
-def topology(N):
+def topology(N,Radius):
 	Cords = generate_coordinates(N)
 	Neighbours = []
 	for i in range(N):
@@ -30,14 +27,14 @@ def topology(N):
 		MyNeighbours = []
 		for j in range(N):
 			V2 = Cords[j]
-			if is_neighbour(calculate_distance(Value[0], Value[1], V2[0], V2[1])):
+			if is_neighbour(calculate_distance(Value[0], Value[1], V2[0], V2[1]), Radius):
 				MyNeighbours.append(j)	
 			else: continue 
 
-		if MyNeighbours == []:
-			rand = int(random.random()*10%N) 	
-			index = rand if rand != i else (rand + 1)%N 
-			MyNeighbours.append(index)
+#		if MyNeighbours == []:
+#			rand = int(random.random()*10%N) 	
+#			index = rand if rand != i else (rand + 1)%N 
+#			MyNeighbours.append(index)
 		Neighbours.append(MyNeighbours)		
 
 	Chain = generate_chain(N, Neighbours)	
@@ -75,12 +72,12 @@ def calculate_distance(X0,Y0,X,Y):
 def generate_coordinates(N):
 	return [[random.random(), random.random()] for x in  range(N)]
 
-def is_neighbour(Distance):
-	if Distance >= 0.2 or Distance == 0.0:
+def is_neighbour(Distance, Radius):
+	if Distance >= Radius or Distance == 0.0:
 		return False
 	return True
 
 
 if __name__	== "__main__":
-	N = eval(sys.argv[1])
-	topology(N)
+	N, Radius = eval(sys.argv[1]), eval(sys.argv[2])
+	topology(N, Radius)
