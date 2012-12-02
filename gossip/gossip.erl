@@ -42,7 +42,7 @@ create(I,Pids,NeighboursListSize,TransitionMatrix,Input,Function, FragList,Repli
     PartitionList = lists:split(lists:nth(Nodeno,NeighboursListSize),TransitionMatrix),
     NeighboursList = element(1, PartitionList),
 	Myvalue = initthread(I,Input,Fragment,Function,InputList),
-    Iterations = round(length(NeighboursListSize) * math:log(length(NeighboursListSize))) ,
+    Iterations = round(length(NeighboursListSize) * 2) ,
     Minmaxelement = {0,length(Fragment)},
     Pid = spawn_link(fun() -> threadnodes(NeighboursListSize,NeighboursList,[],Myvalue, Fragment,Iterations,Minmaxelement,FragmentSize,getcurrentpid(I),ReplicationFactor) end),
     create(I-1,  (Pids ++ [Pid]), NeighboursListSize, element(2, PartitionList), Input,Function, FragList,ReplicationFactor,InputList,FragmentSize).
@@ -192,7 +192,7 @@ threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,Iterations,M
                             NewCurrentPid = CurrentPid
                     end,
                     io:format("~p Value ~p less than ~p New Minmaxelement: ~p ~n",[self(),element(1,hd(Myvalue)),(element(2,hd(Myvalue))*N)/ReplicationFactor,NewMinmaxelement ]),
-                    NewIterations = round(length(NeighboursListSize) * math:log(length(NeighboursListSize))),
+                    NewIterations = round(length(NeighboursListSize) * 2),
                     threadnodes(NeighboursListSize,NeighboursList,Pids,NewMyvalue,Fragment,NewIterations,NewMinmaxelement,TotalElements,NewCurrentPid,ReplicationFactor)
             end;
             
