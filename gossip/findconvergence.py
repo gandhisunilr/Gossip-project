@@ -8,7 +8,7 @@ def findconvergence(Networksize,ActualValue, Percenterror):
 	for line in iter(f):
 		I = I +1
 		Myvalue = float(line.split(" ")[1])
-		Pid = int(re.findall(r'<0.(.*).[0-9]>',line.split(" ")[0])[0])
+		Pid = int(re.findall(r'<0.(\d*).*[0-9]>',line.split(" ")[0])[0])
 		if abs(Myvalue - ActualValue) < threshold:
 			Pidmapping[Pid]= 1
 		else:
