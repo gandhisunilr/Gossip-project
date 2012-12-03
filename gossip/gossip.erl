@@ -105,6 +105,16 @@ case Type of
 	returnmsg -> io:format("~p : ~p Received from ~p :~p Reply Computing ~p ~n", [hd(Printlist),hd(lists:nth(2,Printlist)),lists:nth(3,Printlist),hd(lists:nth(4,Printlist)), Function])
 end.
 	
+writeFile(Function, ValueList)->
+    case Function of
+        meanfragments -> Temp = hd(lists:nth(1,ValueList)),
+        Number = element(1, Temp),
+        Sum = element(2, Temp),
+        Result = Sum/Number;
+        X -> Result = hd(lists:nth(1, ValueList))    
+    end,
+    file:write_file("gossipvalues",io_lib:fwrite("~p ~p\n", [self(), Result]),[append]).
+
 
 threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,ReplicationFactor,Parent) ->
 	receive
@@ -130,14 +140,14 @@ threadnodes(NeighboursListSize,NeighboursList,Pids,Myvalue,Fragment,ReplicationF
         	Pid ! { returnmsg, Function, self(), Myvalue },
         	printmsg(Function, return, [self(), Myvalue, Pid, Value]),
             ValueList = calculate(Function, Myvalue, Value, Fragment, Pid, Parent),
-            file:write_file("gossipvalues",io_lib:fwrite("~p ~p\n", [self(),hd(lists:nth(1,ValueList))]),[append]),
+            writeFile(Function, ValueList),writeFile(Function, ValueList),
             threadnodes(NeighboursListSize,NeighboursList, Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),ReplicationFactor, lists:nth(3, ValueList));
 
         %Reply Recieve Function from Process Pid with his value	
         {returnmsg, Function, Pid, Value } ->
             printmsg(Function, returnmsg, [self(),Myvalue,Pid,Value]),
             ValueList = calculate(Function, Myvalue, Value, Fragment, Pid, Parent),
-            file:write_file("gossipvalues",io_lib:fwrite("~p ~p\n", [self(),hd(lists:nth(1,ValueList))]),[append]),
+            writeFile(Function, ValueList),
             threadnodes(NeighboursListSize,NeighboursList, Pids, lists:nth(1,ValueList),lists:nth(2,ValueList),ReplicationFactor,lists:nth(3, ValueList));
 
         {retrieve, Result} ->
