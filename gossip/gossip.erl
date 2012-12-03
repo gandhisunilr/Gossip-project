@@ -64,7 +64,9 @@ case Function of
         max-> [[erlang:max(hd(Myvalue), hd(Value))],Fragment,0];
         min-> [[erlang:min(hd(Myvalue), hd(Value))],Fragment,0];
         mean->[[(hd(Myvalue) + hd(Value))/2],Fragment,0];
-        meanfragments->[[(hd(Myvalue) + hd(Value))/2, (tl(Myvalue) + tl(Value))/(hd(Myvalue) + hd(Value))/2],Fragment,0];
+        meanfragments->{K1,V1} = hd(Myvalue),
+        {K2,V2} = hd(Value),
+        [[{(K1 +K2)/2, (V1+V2)/2}],Fragment, 0];
         update -> updateFound:upFound(Myvalue, Value,Fragment, Function) ++ [0] ;
         retrieve -> Result = updateFound:upFound(Myvalue, Value, Fragment, Function),
             %io:format("Result is ~p", [Result]),
