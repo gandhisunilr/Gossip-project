@@ -106,12 +106,13 @@ case Type of
 end.
 	
 writeFile(Function, ValueList)->
+    Temp = hd(lists:nth(1,ValueList)),
     case Function of
-        meanfragments -> Temp = hd(lists:nth(1,ValueList)),
-        Number = element(1, Temp),
+        meanfragments -> Number = element(1, Temp),
         Sum = element(2, Temp),
         Result = Sum/Number;
-        X -> Result = hd(lists:nth(1, ValueList))    
+        update -> Result = element(1, Temp);
+        X -> Result = Temp    
     end,
     file:write_file("gossipvalues",io_lib:fwrite("~p ~p\n", [self(), Result]),[append]).
 
